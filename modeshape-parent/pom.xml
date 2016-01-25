@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.modeshape</groupId>
     <artifactId>modeshape-parent</artifactId>
-    <version>4.5.0.Final</version>
+    <version>4.5.0.1-deg-SNAPSHOT</version>
     <name>ModeShape Parent</name>
 
     <url>http://www.modeshape.org</url>
@@ -2331,4 +2331,15 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <distributionManagement>
+        <repository>
+            <id>portal-releases</id>
+            <url>http://nexus.data-experts.de:8081/nexus/content/repositories/portal/</url>
+        </repository>
+        <snapshotRepository>
+            <id>portal-snapshot</id>
+            <url>http://nexus.data-experts.de:8081/nexus/content/repositories/portal-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

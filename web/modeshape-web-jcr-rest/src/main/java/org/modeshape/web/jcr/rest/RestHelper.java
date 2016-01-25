@@ -46,7 +46,7 @@ public final class RestHelper {
     public static final String UPLOAD_METHOD_NAME = "upload";
     public static final String BACKUP_METHOD_NAME = "backup";
     public static final String RESTORE_METHOD_NAME = "restore";
-    
+
     private static final List<String> ALL_METHODS = Arrays.asList(BINARY_METHOD_NAME,
                                                                   ITEMS_METHOD_NAME,
                                                                   NODES_METHOD_NAME,
@@ -57,6 +57,14 @@ public final class RestHelper {
     // almost ISO8601, because in JDK 6 Z/z do not support timezones of the format hh:mm
     private static final List<SimpleDateFormat> ISO8601_DATE_PARSERS = Arrays.asList(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
                                                                                      new SimpleDateFormat("yyyy-MM-dd"));
+
+    private static final Logger LOGGER = WebLogger.getLogger(RestHelper.class);
+
+    static {
+        for(SimpleDateFormat format:ISO8601_DATE_PARSERS) {
+            format.setLenient(false);
+        }
+    }
     
     private RestHelper() {
     }

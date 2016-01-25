@@ -80,6 +80,12 @@
             <artifactId>modeshape-jcr</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.modeshape</groupId>
+            <artifactId>modeshape-unit-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>

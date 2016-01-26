@@ -73,6 +73,7 @@ public final class RestNodeHandler extends ItemHandler {
      * @param rawRepositoryName the URL-encoded repository name
      * @param rawWorkspaceName the URL-encoded workspace name
      * @param id the node identifier
+     * @param autoCheckoutCheckin automatic checkout/checkin of item
      * @param requestContent the JSON-encoded representation of the values and, possibly, properties to be set
      * @return the JSON-encoded representation of the node on which the property or properties were set.
      * @throws JSONException if there is an error encoding the node
@@ -82,10 +83,11 @@ public final class RestNodeHandler extends ItemHandler {
                                       String rawRepositoryName,
                                       String rawWorkspaceName,
                                       String id,
+                                      boolean autoCheckoutCheckin,
                                       String requestContent ) throws JSONException, RepositoryException {
         Session session = getSession(request, rawRepositoryName, rawWorkspaceName);
         Node node = nodeWithId(id, session);
-        node = updateNode(node, stringToJSONObject(requestContent));
+        node = updateNode(node, stringToJSONObject(requestContent),autoCheckoutCheckin);
         session.save();
 
         return createRestItem(request, 0, session, node);

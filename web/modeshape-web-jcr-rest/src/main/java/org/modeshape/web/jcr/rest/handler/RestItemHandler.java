@@ -137,6 +137,7 @@ public final class RestItemHandler extends ItemHandler {
      * @param rawRepositoryName the URL-encoded repository name
      * @param rawWorkspaceName the URL-encoded workspace name
      * @param path the path to the item
+     * @param autoCheckoutCheckin automatic checkout/checkin of item
      * @param requestContent the JSON-encoded representation of the values and, possibly, properties to be set
      * @return the JSON-encoded representation of the node on which the property or properties were set.
      * @throws JSONException if there is an error encoding the node
@@ -146,10 +147,11 @@ public final class RestItemHandler extends ItemHandler {
                                 String rawRepositoryName,
                                 String rawWorkspaceName,
                                 String path,
+                                boolean autoCheckoutCheckin,
                                 String requestContent ) throws JSONException, RepositoryException {
         Session session = getSession(request, rawRepositoryName, rawWorkspaceName);
         Item item = itemAtPath(path, session);
-        item = updateItem(item, stringToJSONObject(requestContent));
+        item = updateItem(item, stringToJSONObject(requestContent),autoCheckoutCheckin);
         session.save();
 
         return createRestItem(request, 0, session, item);
@@ -196,15 +198,17 @@ public final class RestItemHandler extends ItemHandler {
      * @param request the servlet request; may not be null or unauthenticated
      * @param repositoryName the URL-encoded repository name
      * @param workspaceName the URL-encoded workspace name
+     * @param autoCheckoutCheckin automatic checkout/checkin of items
      * @param requestContent the JSON-encoded representation of the values and, possibly, properties to be set
      * @return a {@code non-null} {@link Response}
      * @throws JSONException if the body of the request is not a valid JSON object
      * @throws RepositoryException if any of the JCR operations fail
-     * @see RestItemHandler#updateItem(javax.servlet.http.HttpServletRequest, String, String, String, String)
+     * @see RestItemHandler#updateItem(javax.servlet.http.HttpServletRequest, String, String, String, boolean, String)
      */
     public Response updateItems( HttpServletRequest request,
                                  String repositoryName,
                                  String workspaceName,
+                                 boolean autoCheckoutCheckin,
                                  String requestContent ) throws JSONException, RepositoryException {
         JSONObject requestBody = stringToJSONObject(requestContent);
         if (requestBody.length() == 0) {
@@ -212,7 +216,7 @@ public final class RestItemHandler extends ItemHandler {
         }
         Session session = getSession(request, repositoryName, workspaceName);
         TreeMap<String, JSONObject> nodesByPath = createNodesByPathMap(requestBody);
-        List<RestItem> result = updateMultipleNodes(request, session, nodesByPath);
+        List<RestItem> result = updateMultipleNodes(request, session, nodesByPath,autoCheckoutCheckin);
         return createOkResponse(result);
     }
 
@@ -258,12 +262,12 @@ public final class RestItemHandler extends ItemHandler {
 
     private List<RestItem> updateMultipleNodes( HttpServletRequest request,
                                                 Session session,
-                                                TreeMap<String, JSONObject> nodesByPath )
+                                                TreeMap<String, JSONObject> nodesByPath,boolean automaticCheckoutCheckin  )
         throws RepositoryException, JSONException {
         List<RestItem> result = new ArrayList<RestItem>();
         for (String nodePath : nodesByPath.keySet()) {
             Item item = session.getItem(nodePath);
-            item = updateItem(item, nodesByPath.get(nodePath));
+            item = updateItem(item, nodesByPath.get(nodePath),automaticCheckoutCheckin);
             result.add(createRestItem(request, 0, session, item));
         }
         session.save();

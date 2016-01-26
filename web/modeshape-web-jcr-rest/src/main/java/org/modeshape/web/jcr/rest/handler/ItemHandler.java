@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.jcr.Binary;
 import javax.jcr.Item;
 import javax.jcr.ItemNotFoundException;
@@ -43,6 +44,7 @@ import javax.jcr.version.VersionManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
+
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -60,12 +62,14 @@ public abstract class ItemHandler extends AbstractHandler {
     protected static final String CHILD_NODE_HOLDER = "children";
 
     private static final String PRIMARY_TYPE_PROPERTY = JcrConstants.JCR_PRIMARY_TYPE;
+
     private static final String MIXIN_TYPES_PROPERTY = JcrConstants.JCR_MIXIN_TYPES;
+
     private static final String PROPERTIES_HOLDER = "properties";
 
     /**
      * Adds the node described by {@code jsonNode} with name {@code nodeName} to the existing node {@code parentNode}.
-     * 
+     *
      * @param parentNode the parent of the node to be added
      * @param nodeName the name of the node to be added
      * @param jsonNode the JSON-encoded representation of the node or nodes to be added.
@@ -74,9 +78,7 @@ public abstract class ItemHandler extends AbstractHandler {
      * @throws JSONException if there is an error encoding the node
      * @throws RepositoryException if any other error occurs
      */
-    protected Node addNode( Node parentNode,
-                            String nodeName,
-                            JSONObject jsonNode ) throws RepositoryException, JSONException {
+    protected Node addNode(Node parentNode, String nodeName, JSONObject jsonNode) throws RepositoryException, JSONException {
         Node newNode;
 
         JSONObject properties = getProperties(jsonNode);
@@ -94,8 +96,8 @@ public abstract class ItemHandler extends AbstractHandler {
             updateMixins(newNode, properties.get(MIXIN_TYPES_PROPERTY));
         }
 
-        for (Iterator<?> iter = properties.keys(); iter.hasNext();) {
-            String key = (String)iter.next();
+        for (Iterator<?> iter = properties.keys(); iter.hasNext(); ) {
+            String key = (String) iter.next();
 
             if (PRIMARY_TYPE_PROPERTY.equals(key) || MIXIN_TYPES_PROPERTY.equals(key)) {
                 continue;
@@ -114,12 +116,12 @@ public abstract class ItemHandler extends AbstractHandler {
         return newNode;
     }
 
-    protected List<JSONChild> getChildren( JSONObject jsonNode ) throws JSONException {
+    protected List<JSONChild> getChildren(JSONObject jsonNode) throws JSONException {
         List<JSONChild> children;
         try {
             JSONObject childrenObject = jsonNode.getJSONObject(CHILD_NODE_HOLDER);
             children = new ArrayList<>(childrenObject.length());
-            for (Iterator<?> iterator = childrenObject.keys(); iterator.hasNext();) {
+            for (Iterator<?> iterator = childrenObject.keys(); iterator.hasNext(); ) {
                 String childName = iterator.next().toString();
                 //it is not possible to have SNS in the object form, so the index will always be 1
                 children.add(new JSONChild(childName, childrenObject.getJSONObject(childName), 1));
@@ -136,8 +138,7 @@ public abstract class ItemHandler extends AbstractHandler {
                     continue;
                 }
                 if (child.length() > 1) {
-                    logger.warn("The child object {0} has more than 1 elements, only the first one will be taken into account",
-                                child);
+                    logger.warn("The child object {0} has more than 1 elements, only the first one will be taken into account", child);
                 }
                 String childName = child.keys().next().toString();
                 int sns = visitedNames.containsKey(childName) ? visitedNames.get(childName) + 1 : 1;
@@ -149,16 +150,15 @@ public abstract class ItemHandler extends AbstractHandler {
         }
     }
 
-    protected boolean hasChildren( JSONObject jsonNode ) {
+    protected boolean hasChildren(JSONObject jsonNode) {
         return jsonNode.has(CHILD_NODE_HOLDER);
     }
 
-    protected JSONObject getProperties( JSONObject jsonNode ) throws JSONException {
+    protected JSONObject getProperties(JSONObject jsonNode) throws JSONException {
         return jsonNode.has(PROPERTIES_HOLDER) ? jsonNode.getJSONObject(PROPERTIES_HOLDER) : new JSONObject();
     }
 
-    private Value createBinaryValue( String base64EncodedValue,
-                                     ValueFactory valueFactory ) throws RepositoryException {
+    private Value createBinaryValue(String base64EncodedValue, ValueFactory valueFactory) throws RepositoryException {
         InputStream stream = null;
         try {
             byte[] binaryValue = Base64.decode(base64EncodedValue);
@@ -183,16 +183,14 @@ public abstract class ItemHandler extends AbstractHandler {
      * Sets the named property on the given node. This method expects {@code value} to be either a JSON string or a JSON array of
      * JSON strings. If {@code value} is a JSON array, {@code Node#setProperty(String, String[]) the multi-valued property setter}
      * will be used.
-     * 
+     *
      * @param node the node on which the property is to be set
      * @param propName the name of the property to set
      * @param value the JSON-encoded values to be set
      * @throws RepositoryException if there is an error setting the property
      * @throws JSONException if {@code value} cannot be decoded
      */
-    protected void setPropertyOnNode( Node node,
-                                      String propName,
-                                      Object value ) throws RepositoryException, JSONException {
+    protected void setPropertyOnNode(Node node, String propName, Object value) throws RepositoryException, JSONException {
         // Are the property values encoded ?
         boolean encoded = propName.endsWith(BASE64_ENCODING_SUFFIX);
         if (encoded) {
@@ -211,16 +209,15 @@ public abstract class ItemHandler extends AbstractHandler {
         }
     }
 
-    private Set<String> updateMixins( Node node,
-                                      Object mixinsJsonValue ) throws JSONException, RepositoryException {
+    private Set<String> updateMixins(Node node, Object mixinsJsonValue) throws JSONException, RepositoryException {
         Object valuesObject = convertToJcrValues(node, mixinsJsonValue, false);
         Value[] values = null;
         if (valuesObject == null) {
             values = new Value[0];
         } else if (valuesObject instanceof Value[]) {
-            values = (Value[])valuesObject;
+            values = (Value[]) valuesObject;
         } else {
-            values = new Value[]{(Value)valuesObject};
+            values = new Value[] { (Value) valuesObject };
         }
 
         Set<String> jsonMixins = new HashSet<String>(values.length);
@@ -245,16 +242,14 @@ public abstract class ItemHandler extends AbstractHandler {
         return mixinsToRemove;
     }
 
-    private Object convertToJcrValues( Node node,
-                                        Object value,
-                                        boolean encoded ) throws RepositoryException, JSONException {
-        if (value == JSONObject.NULL || (value instanceof JSONArray && ((JSONArray)value).length() == 0)) {
+    private Object convertToJcrValues(Node node, Object value, boolean encoded) throws RepositoryException, JSONException {
+        if (value == JSONObject.NULL || (value instanceof JSONArray && ((JSONArray) value).length() == 0)) {
             // for any null value of empty json array, return an empty array which will mean the property will be removed
             return null;
         }
-        org.modeshape.jcr.api.ValueFactory valueFactory = (org.modeshape.jcr.api.ValueFactory)node.getSession().getValueFactory();
+        org.modeshape.jcr.api.ValueFactory valueFactory = (org.modeshape.jcr.api.ValueFactory) node.getSession().getValueFactory();
         if (value instanceof JSONArray) {
-            JSONArray jsonValues = (JSONArray)value;
+            JSONArray jsonValues = (JSONArray) value;
             Value[] values = new Value[jsonValues.length()];
 
             for (int i = 0; i < jsonValues.length(); i++) {
@@ -272,7 +267,7 @@ public abstract class ItemHandler extends AbstractHandler {
 
     /**
      * Deletes the item at {@code path}.
-     * 
+     *
      * @param request the servlet request; may not be null or unauthenticated
      * @param rawRepositoryName the URL-encoded repository name
      * @param rawWorkspaceName the URL-encoded workspace name
@@ -281,10 +276,7 @@ public abstract class ItemHandler extends AbstractHandler {
      * @throws NotAuthorizedException if the user does not have the access required to delete the item at this path
      * @throws RepositoryException if any other error occurs
      */
-    public void deleteItem( HttpServletRequest request,
-                            String rawRepositoryName,
-                            String rawWorkspaceName,
-                            String path ) throws NotFoundException, NotAuthorizedException, RepositoryException {
+    public void deleteItem(HttpServletRequest request, String rawRepositoryName, String rawWorkspaceName, String path) throws NotFoundException, NotAuthorizedException, RepositoryException {
 
         assert rawRepositoryName != null;
         assert rawWorkspaceName != null;
@@ -296,8 +288,7 @@ public abstract class ItemHandler extends AbstractHandler {
         session.save();
     }
 
-    protected void doDelete( String path,
-                             Session session ) throws RepositoryException {
+    protected void doDelete(String path, Session session) throws RepositoryException {
         Item item;
         try {
             item = session.getItem(path);
@@ -309,23 +300,22 @@ public abstract class ItemHandler extends AbstractHandler {
 
     /**
      * Updates the existing item based upon the supplied JSON content.
-     * 
+     *
      * @param item the node or property to be updated
      * @param jsonItem the JSON of the item(s) to be updated
+     * @param autoCheckoutCheckin automatic checkout/checkin of item
      * @return the node that was updated; never null
      * @throws JSONException if there is an error encoding the node
      * @throws RepositoryException if any other error occurs
      */
-    protected Item updateItem( Item item,
-                               JSONObject jsonItem ) throws RepositoryException, JSONException {
+    protected Item updateItem(Item item, JSONObject jsonItem, boolean autoCheckoutCheckin) throws RepositoryException, JSONException {
         if (item instanceof Node) {
-            return updateNode((Node)item, jsonItem);
+            return updateNode((Node) item, jsonItem,autoCheckoutCheckin);
         }
-        return updateProperty((Property)item, jsonItem);
+        return updateProperty((Property) item, jsonItem);
     }
 
-    private Property updateProperty( Property property,
-                                     JSONObject jsonItem ) throws RepositoryException, JSONException {
+    private Property updateProperty(Property property, JSONObject jsonItem) throws RepositoryException, JSONException {
         String propertyName = property.getName();
         String jsonPropertyName = jsonItem.has(propertyName) ? propertyName : propertyName + BASE64_ENCODING_SUFFIX;
         Node node = property.getParent();
@@ -333,9 +323,8 @@ public abstract class ItemHandler extends AbstractHandler {
         return property;
     }
 
-    protected Node updateNode( Node node,
-                               JSONObject jsonItem ) throws RepositoryException, JSONException {
-        VersionableChanges changes = new VersionableChanges(node.getSession());
+    protected Node updateNode(Node node, JSONObject jsonItem,boolean autoCheckoutCheckin) throws RepositoryException, JSONException {
+        VersionableChanges changes = new VersionableChanges(node.getSession(),autoCheckoutCheckin);
         try {
             node = updateNode(node, jsonItem, changes);
             changes.checkin();
@@ -348,7 +337,7 @@ public abstract class ItemHandler extends AbstractHandler {
 
     /**
      * Updates the existing node with the properties (and optionally children) as described by {@code jsonNode}.
-     * 
+     *
      * @param node the node to be updated
      * @param jsonNode the JSON-encoded representation of the node or nodes to be updated.
      * @param changes the versionable changes; may not be null
@@ -356,9 +345,7 @@ public abstract class ItemHandler extends AbstractHandler {
      * @throws JSONException if there is an error encoding the node
      * @throws RepositoryException if any other error occurs
      */
-    protected Node updateNode( Node node,
-                               JSONObject jsonNode,
-                               VersionableChanges changes ) throws RepositoryException, JSONException {
+    protected Node updateNode(Node node, JSONObject jsonNode, VersionableChanges changes) throws RepositoryException, JSONException {
         // If the JSON object has a properties holder, then this is likely a subgraph ...
         JSONObject properties = jsonNode;
         if (jsonNode.has(PROPERTIES_HOLDER)) {
@@ -384,8 +371,8 @@ public abstract class ItemHandler extends AbstractHandler {
         }
 
         // Now set all the other properties ...
-        for (Iterator<?> iter = properties.keys(); iter.hasNext();) {
-            String key = (String)iter.next();
+        for (Iterator<?> iter = properties.keys(); iter.hasNext(); ) {
+            String key = (String) iter.next();
             if (PRIMARY_TYPE_PROPERTY.equals(key) || MIXIN_TYPES_PROPERTY.equals(key) || CHILD_NODE_HOLDER.equals(key)) {
                 continue;
             }
@@ -405,9 +392,7 @@ public abstract class ItemHandler extends AbstractHandler {
         return node;
     }
 
-    private void updateChildren( Node node,
-                                 JSONObject jsonNode,
-                                 VersionableChanges changes ) throws JSONException, RepositoryException {
+    private void updateChildren(Node node, JSONObject jsonNode, VersionableChanges changes) throws JSONException, RepositoryException {
         Session session = node.getSession();
 
         // Get the existing children ...
@@ -449,8 +434,7 @@ public abstract class ItemHandler extends AbstractHandler {
                         //this is a child belonging to another node
                         if (childNode.isNodeType("mix:shareable")) {
                             //if it's a shared node, we can't clone it because clone is not a session-scoped operation
-                            logger.warn("The node {0} with the id {1} is a shared node belonging to another parent. It cannot be changed via the update operation",
-                                        childNode.getPath(), childNode.getIdentifier());
+                            logger.warn("The node {0} with the id {1} is a shared node belonging to another parent. It cannot be changed via the update operation", childNode.getPath(), childNode.getIdentifier());
                         } else {
                             //move the node into this parent
                             session.move(childNode.getPath(), node.getPath() + "/" + childNodeName);
@@ -495,7 +479,7 @@ public abstract class ItemHandler extends AbstractHandler {
         }
     }
 
-    private String nameOf( Node node ) throws RepositoryException {
+    private String nameOf(Node node) throws RepositoryException {
         int index = node.getIndex();
         String childName = node.getName();
         return index == 1 ? childName : childName + "[" + index + "]";
@@ -503,10 +487,12 @@ public abstract class ItemHandler extends AbstractHandler {
 
     protected static class JSONChild {
         private final String name;
+
         private final JSONObject body;
+
         private final int snsIdx;
 
-        protected JSONChild( String name, JSONObject body, int snsIdx ) {
+        protected JSONChild(String name, JSONObject body, int snsIdx) {
             this.name = name;
             this.body = body;
             this.snsIdx = snsIdx;
@@ -536,18 +522,23 @@ public abstract class ItemHandler extends AbstractHandler {
 
     protected static class VersionableChanges {
         private final Set<String> changedVersionableNodes = new HashSet<String>();
+
         private final Session session;
+
         private final VersionManager versionManager;
 
-        protected VersionableChanges( Session session ) throws RepositoryException {
+        private final boolean autoCheckoutCheckin;
+
+        protected VersionableChanges(Session session, boolean autoCheckoutCheckin) throws RepositoryException {
             this.session = session;
             assert this.session != null;
             this.versionManager = session.getWorkspace().getVersionManager();
+            this.autoCheckoutCheckin = autoCheckoutCheckin;
         }
 
-        public void checkout( Node node ) throws RepositoryException {
+        public void checkout(Node node) throws RepositoryException {
             boolean versionable = node.isNodeType("mix:versionable");
-            if (versionable) {
+            if (versionable && autoCheckoutCheckin) {
                 String path = node.getPath();
                 versionManager.checkout(path);
                 this.changedVersionableNodes.add(path);
@@ -562,7 +553,7 @@ public abstract class ItemHandler extends AbstractHandler {
             RepositoryException first = null;
             for (String path : this.changedVersionableNodes) {
                 try {
-                    if (versionManager.isCheckedOut(path)) {
+                    if (versionManager.isCheckedOut(path) && autoCheckoutCheckin) {
                         versionManager.checkin(path);
                     }
                 } catch (RepositoryException e) {
@@ -585,7 +576,7 @@ public abstract class ItemHandler extends AbstractHandler {
             RepositoryException first = null;
             for (String path : this.changedVersionableNodes) {
                 try {
-                    if (versionManager.isCheckedOut(path)) {
+                    if (versionManager.isCheckedOut(path) && autoCheckoutCheckin) {
                         versionManager.checkin(path);
                     }
                 } catch (RepositoryException e) {

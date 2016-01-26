@@ -525,6 +525,7 @@ public final class ModeShapeRestService {
      * @param rawRepositoryName the URL-encoded repository name
      * @param rawWorkspaceName the URL-encoded workspace name
      * @param path the path to the item
+     * @param autoCheckoutCheckin automatic checkout/checkin of Node
      * @param requestContent the JSON-encoded representation of the values and, possibly, properties to be set
      * @return a {@link RestItem} instance representing the modified item.
      * @throws JSONException if there is an error reading the request body as a valid JSON object.
@@ -538,8 +539,9 @@ public final class ModeShapeRestService {
                              @PathParam( "repositoryName" ) String rawRepositoryName,
                              @PathParam( "workspaceName" ) String rawWorkspaceName,
                              @PathParam( "path" ) String path,
+                             @QueryParam( "autoCheckoutCheckin" ) @DefaultValue( "true" ) boolean autoCheckoutCheckin,
                              String requestContent ) throws JSONException, RepositoryException {
-        return itemHandler.updateItem(request, rawRepositoryName, rawWorkspaceName, path, requestContent);
+        return itemHandler.updateItem(request, rawRepositoryName, rawWorkspaceName, path,autoCheckoutCheckin, requestContent);
     }
 
     /**
@@ -556,11 +558,12 @@ public final class ModeShapeRestService {
      * @param request the servlet request; may not be null or unauthenticated
      * @param rawRepositoryName the URL-encoded repository name
      * @param rawWorkspaceName the URL-encoded workspace name
+     * @param autoCheckoutCheckin automatic checkout/checkin of Node
      * @param requestContent the JSON-encoded representation of the values and, possibly, properties to be set
      * @return a {@code non-null} {@link Response}
      * @throws JSONException if there is an error reading the request body as a valid JSON object.
      * @throws RepositoryException if any other error occurs
-     * @see ModeShapeRestService#putItem(javax.servlet.http.HttpServletRequest, String, String, String, String)
+     * @see ModeShapeRestService#putItem(javax.servlet.http.HttpServletRequest, String, String, String, boolean, String)
      */
     @PUT
     @Path( "{repositoryName}/{workspaceName}/" + RestHelper.ITEMS_METHOD_NAME )
@@ -569,8 +572,9 @@ public final class ModeShapeRestService {
     public Response putItems( @Context HttpServletRequest request,
                               @PathParam( "repositoryName" ) String rawRepositoryName,
                               @PathParam( "workspaceName" ) String rawWorkspaceName,
+                              @QueryParam( "autoCheckoutCheckin" ) @DefaultValue( "true" ) boolean autoCheckoutCheckin,
                               String requestContent ) throws JSONException, RepositoryException {
-        return itemHandler.updateItems(request, rawRepositoryName, rawWorkspaceName, requestContent);
+        return itemHandler.updateItems(request, rawRepositoryName, rawWorkspaceName,autoCheckoutCheckin, requestContent);
     }
 
     /**
@@ -1040,6 +1044,7 @@ public final class ModeShapeRestService {
      * @param rawRepositoryName the URL-encoded repository name
      * @param rawWorkspaceName the URL-encoded workspace name
      * @param id the node identifier of the existing item
+     * @param autoCheckoutCheckin automatic checkout/checkin of Node
      * @param requestContent the JSON-encoded representation of the values and, possibly, properties to be set
      * @return a {@link RestItem} instance representing the modified item.
      * @throws JSONException if there is an error reading the request body as a valid JSON object.
@@ -1053,8 +1058,9 @@ public final class ModeShapeRestService {
                                    @PathParam( "repositoryName" ) String rawRepositoryName,
                                    @PathParam( "workspaceName" ) String rawWorkspaceName,
                                    @PathParam( "id" ) String id,
+                                   @QueryParam( "autoCheckoutCheckin" ) @DefaultValue( "true" ) boolean autoCheckoutCheckin,
                                    String requestContent ) throws JSONException, RepositoryException {
-        return nodeHandler.updateNodeWithId(request, rawRepositoryName, rawWorkspaceName, id, requestContent);
+        return nodeHandler.updateNodeWithId(request, rawRepositoryName, rawWorkspaceName, id,autoCheckoutCheckin, requestContent);
     }
 
     /**

@@ -115,14 +115,13 @@ public class JcrResultSet implements ResultSet {
 
     @Override
     public boolean isClosed() {
-        return closed || statement.isClosed();
+        return closed;
     }
 
     @Override
     public void close() {
         if (!closed) {
             closed = true;
-            this.statement.close();
         }
     }
 

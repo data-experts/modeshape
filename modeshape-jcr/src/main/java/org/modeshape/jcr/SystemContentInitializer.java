@@ -51,7 +51,7 @@ class SystemContentInitializer implements ContentInitializer {
 
         // Create the "/jcr:system/jcr:versionStorage" node which we don't want to index
         MutableCachedNode versionStorage = createNode(session, system, "jcr:versionStorage", JcrLexicon.VERSION_STORAGE, ModeShapeLexicon.VERSION_STORAGE);
-        versionStorage.excludeFromSearch();
+        //versionStorage.excludeFromSearch();
 
         // Create the "/jcr:system/mode:namespaces" node ...
         namespaces = createNode(session, system, "mode:namespaces", ModeShapeLexicon.NAMESPACES, ModeShapeLexicon.NAMESPACES);

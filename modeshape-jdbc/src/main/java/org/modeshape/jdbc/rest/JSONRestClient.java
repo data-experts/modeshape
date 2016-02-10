@@ -101,7 +101,7 @@ public final class JSONRestClient {
         return new Response(newJSONRequest(HttpGet.class, null, null, null));
     }
 
-    protected Response doGet( String url ) {
+    public Response doGet( String url ) {
         return new Response(newJSONRequest(HttpGet.class, null, null, url));
     }
 
@@ -192,7 +192,7 @@ public final class JSONRestClient {
         String TEXT_PLAIN = "text/plain;";
     }
 
-    protected class Response {
+    public class Response {
 
         private final HttpResponse response;
         private byte[] content;
@@ -218,6 +218,10 @@ public final class JSONRestClient {
             }
         }
 
+        public byte[] getContent() {
+            return content;
+        }
+        
         public boolean isOK() {
             return hasCode(HttpURLConnection.HTTP_OK);
         }

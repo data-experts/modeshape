@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.modeshape.jdbc.delegate;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -25,30 +29,38 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
 import org.modeshape.jcr.api.query.QueryResult;
+import org.modeshape.jdbc.JcrType;
 import org.modeshape.jdbc.JdbcJcrValueFactory;
+import org.modeshape.jdbc.rest.JSONRestClient;
+import org.modeshape.jdbc.rest.ModeShapeRestClient;
 
 /**
  * A simple implementation of the {@link QueryResult} interface.
- * 
+ *
  * @author Horia Chiorean
  */
 public final class HttpQueryResult implements QueryResult {
 
     protected final List<HttpRow> rows = new ArrayList<>();
     protected final Map<String, String> columnTypesByName = new LinkedHashMap<>();
+    private final ModeShapeRestClient restClient;
 
-    protected HttpQueryResult( org.modeshape.jdbc.rest.QueryResult queryResult ) {
+    protected HttpQueryResult(org.modeshape.jdbc.rest.QueryResult queryResult, ModeShapeRestClient restClient) {
         assert queryResult != null;
+        this.restClient = restClient;
 
         if (!queryResult.isEmpty()) {
             this.columnTypesByName.putAll(queryResult.getColumns());
 
             for (org.modeshape.jdbc.rest.QueryResult.Row queryRow : queryResult) {
-                rows.add(new HttpRow(queryRow));
+                rows.add(new HttpRow(queryRow, this.restClient));
             }
         }
     }
@@ -115,7 +127,7 @@ public final class HttpQueryResult implements QueryResult {
         }
 
         @Override
-        public void skip( long skipNum ) {
+        public void skip(long skipNum) {
             if (skipNum < 0) {
                 throw new IllegalArgumentException("skipNum must be a positive value");
             }
@@ -153,13 +165,101 @@ public final class HttpQueryResult implements QueryResult {
     }
 
     private class HttpRow implements Row {
-        private final Map<String, Value> valuesMap = new LinkedHashMap<>();
 
-        protected HttpRow( org.modeshape.jdbc.rest.QueryResult.Row row ) {
+        private final Map<String, Value> valuesMap = new LinkedHashMap<>();
+        private final ModeShapeRestClient restClient;
+
+        protected HttpRow(org.modeshape.jdbc.rest.QueryResult.Row row, ModeShapeRestClient restClient) {
             assert row != null;
-            for (String columnName : columnTypesByName.keySet()) {
-                Object queryRowValue = row.getValue(columnName);
-                valuesMap.put(columnName, JdbcJcrValueFactory.createValue(queryRowValue));
+            this.restClient = restClient;
+            for (Map.Entry<String, String> column : columnTypesByName.entrySet()) {
+                Object queryRowValue = row.getValue(column.getKey());
+                if (column.getValue().equalsIgnoreCase(JcrType.DefaultDataTypes.BINARY)) {
+                    class Binary implements javax.jcr.Value, javax.jcr.Binary {
+
+                        private final ModeShapeRestClient restClient;
+                        private byte[] data;
+                        private final String uri;
+
+                        public Binary(ModeShapeRestClient restClient, String uri) {
+                            this.restClient = restClient;
+                            this.uri = uri;
+                        }
+
+                        private byte[] getData() {
+                            if (data == null) {
+                                JSONRestClient.Response doGet = restClient.getJsonRestClient().doGet(uri);
+                                if (doGet.isOK()) {
+                                    data = doGet.getContent();
+                                }
+                            }
+                            return data;
+                        }
+
+                        @Override
+                        public String getString() throws ValueFormatException, IllegalStateException, RepositoryException {
+                            return new String(getData());
+                        }
+
+                        @Override
+                        public InputStream getStream() throws RepositoryException {
+                            return new ByteArrayInputStream(getData());
+                        }
+
+                        @Override
+                        public javax.jcr.Binary getBinary() throws RepositoryException {
+                            return this;
+                        }
+
+                        @Override
+                        public long getLong() throws ValueFormatException, RepositoryException {
+                            return getData().length;
+                        }
+
+                        @Override
+                        public double getDouble() throws ValueFormatException, RepositoryException {
+                            return getLong();
+                        }
+
+                        @Override
+                        public BigDecimal getDecimal() throws ValueFormatException, RepositoryException {
+                            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        }
+
+                        @Override
+                        public Calendar getDate() throws ValueFormatException, RepositoryException {
+                            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        }
+
+                        @Override
+                        public boolean getBoolean() throws ValueFormatException, RepositoryException {
+                            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        }
+
+                        @Override
+                        public int getType() {
+                            return PropertyType.BINARY;
+                        }
+
+                        @Override
+                        public int read(byte[] b, long position) throws IOException, RepositoryException {
+                            return getStream().read(b, (int) position, b.length);
+                        }
+
+                        @Override
+                        public long getSize() throws RepositoryException {
+                            return getLong();
+                        }
+
+                        @Override
+                        public void dispose() {
+                            data = null;
+                        }
+                    }
+                    valuesMap.put(column.getKey(), new Binary(this.restClient, queryRowValue.toString()));
+                } else {
+                    valuesMap.put(column.getKey(), JdbcJcrValueFactory.createValue(queryRowValue));
+                }
             }
         }
 
@@ -174,12 +274,12 @@ public final class HttpQueryResult implements QueryResult {
         }
 
         @Override
-        public Value getValue( String columnName ) {
+        public Value getValue(String columnName) {
             return valuesMap.get(columnName);
         }
 
         @Override
-        public Node getNode( String selectorName ) {
+        public Node getNode(String selectorName) {
             throw new UnsupportedOperationException("Method getNode(selectorName) not supported");
         }
 
@@ -189,7 +289,7 @@ public final class HttpQueryResult implements QueryResult {
         }
 
         @Override
-        public String getPath( String selectorName ) {
+        public String getPath(String selectorName) {
             throw new UnsupportedOperationException("Method getPath(selectorName) not supported");
         }
 
@@ -199,7 +299,7 @@ public final class HttpQueryResult implements QueryResult {
         }
 
         @Override
-        public double getScore( String selectorName ) {
+        public double getScore(String selectorName) {
             throw new UnsupportedOperationException("Method getScore( String selectorName ) not supported");
         }
     }

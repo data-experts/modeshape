@@ -89,7 +89,7 @@ public class HttpRepositoryDelegate extends AbstractRepositoryDelegate {
         logger.trace("Executing query: {0}", query);
         try {
             org.modeshape.jdbc.rest.QueryResult result = this.restClient.query(query, language);
-            return new HttpQueryResult(result);
+            return new HttpQueryResult(result, this.restClient);
         } catch (Exception e) {
             throw new RepositoryException(e.getMessage(), e);
         }

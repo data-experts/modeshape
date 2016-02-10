@@ -174,7 +174,7 @@ public final class HttpQueryResult implements QueryResult {
             this.restClient = restClient;
             for (Map.Entry<String, String> column : columnTypesByName.entrySet()) {
                 Object queryRowValue = row.getValue(column.getKey());
-                if (column.getValue().equalsIgnoreCase(JcrType.DefaultDataTypes.BINARY)) {
+                if (column.getValue().equalsIgnoreCase(JcrType.DefaultDataTypes.BINARY) || (queryRowValue != null && queryRowValue.toString().startsWith(restClient.serverUrl()))) {
                     class Binary implements javax.jcr.Value, javax.jcr.Binary {
 
                         private final ModeShapeRestClient restClient;

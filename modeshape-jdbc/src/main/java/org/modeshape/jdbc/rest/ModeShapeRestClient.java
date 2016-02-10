@@ -35,6 +35,10 @@ public final class ModeShapeRestClient {
 
     private final JSONRestClient jsonRestClient;
 
+    public JSONRestClient getJsonRestClient() {
+        return jsonRestClient;
+    }
+
     /**
      * Creates a new REST client instance which will always use the given URL as the server connection
      *

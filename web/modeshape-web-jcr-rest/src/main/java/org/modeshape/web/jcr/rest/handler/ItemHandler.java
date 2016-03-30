@@ -85,6 +85,16 @@ public abstract class ItemHandler extends AbstractHandler {
 
         JSONObject properties = getProperties(jsonNode);
 
+        if(parentNode.isLocked()) {
+            LockManager lockManager = parentNode.getSession().getWorkspace().getLockManager();
+            Lock lock = lockManager.getLock(parentNode.getPath());
+            if (lock.getLockOwner().equals(parentNode.getSession().getUserID())) {
+                //Add LockToken to current session
+                lockManager.unlock(parentNode.getPath());
+                lockManager.lock(parentNode.getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
+            }
+        }
+
         if (properties.has(PRIMARY_TYPE_PROPERTY)) {
             String primaryType = properties.getString(PRIMARY_TYPE_PROPERTY);
             newNode = parentNode.addNode(nodeName, primaryType);

@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.modeshape</groupId>
     <artifactId>modeshape-parent</artifactId>
-    <version>5.0.0.Final</version>
+    <version>5.0.0.0-deg-SNAPSHOT</version>
     <name>ModeShape Parent</name>
 
     <url>http://www.modeshape.org</url>
@@ -84,14 +84,14 @@
             <timezone>+4</timezone>
         </developer>
     </developers>
-    
+
     <properties>
 
         <!-- Used to define the JCR Descriptor value -->
         <jcr.repository.vendor>${project.organization.name}</jcr.repository.vendor>
         <jcr.repository.vendor.url>http://www.modeshape.org</jcr.repository.vendor.url>
         <jcr.repository.name>ModeShape</jcr.repository.name>
-        
+
         <!--
               These are properties used in the database profiles. Must initialize
               them to be empty so that Maven applies them via filtering to the
@@ -123,13 +123,13 @@
         <version.com.atomikos>3.8.0</version.com.atomikos>
         <version.org.picketbox>4.0.21.Final</version.org.picketbox>
         <version.com.zaxxer.HikariCP>2.4.3</version.com.zaxxer.HikariCP>
-        
+
         <version.org.jboss.spec.javax.transaction.jboss-transaction-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.transaction.jboss-transaction-api_1.1_spec>
         <version.com.googlecode.concurrentlinkedhashmap>1.4.2</version.com.googlecode.concurrentlinkedhashmap>
         <!--Make sure the jgroups version is the same as the one used by ISPN -->
         <version.org.jgroups>3.6.8.Final</version.org.jgroups>
         <jgroups.module.slot>main</jgroups.module.slot>
-        
+
         <version.org.jboss.logging>3.2.1.Final</version.org.jboss.logging>
         <version.com.sun.xml.bind>2.2.11</version.com.sun.xml.bind>
         <version.org.jboss.spec.javax.servlet.jboss-servlet-api_3.1_spec>1.0.0.Final</version.org.jboss.spec.javax.servlet.jboss-servlet-api_3.1_spec>
@@ -167,7 +167,7 @@
         <version.org.eclipse.emf.ecore>2.4.2</version.org.eclipse.emf.ecore>
         <version.org.eclipse.emf.ecore-change>2.2.3</version.org.eclipse.emf.ecore-change>
         <version.org.eclipse.emf.ecore-xmi>2.4.1</version.org.eclipse.emf.ecore-xmi>
-        <!-- nightmare end -->        
+        <!-- nightmare end -->
         <version.org.apache.tika>1.8</version.org.apache.tika>
         <version.com.drewnoakes.metadata-extractor>2.6.2</version.com.drewnoakes.metadata-extractor>
         <version.org.apache.lucene>5.3.1</version.org.apache.lucene>
@@ -180,21 +180,21 @@
         <version.org.jboss.ironjacamar>1.0.13.Final</version.org.jboss.ironjacamar>
         <version.com.datastax.cassandra>2.0.0-rc2</version.com.datastax.cassandra>
         <version.org.apache.cassandra>2.0.3</version.org.apache.cassandra>
-        
+
         <version.com.h2>1.4.191</version.com.h2>
         <version.postgresql.9>9.2-1002.jdbc4</version.postgresql.9>
         <version.postgresql.8>8.4-702.jdbc4</version.postgresql.8>
         <version.mysql>5.1.38</version.mysql>
         <version.com.oracle>11.2.0.4</version.com.oracle>
         <version.com.microsoft.sqlserver>4.0.2206</version.com.microsoft.sqlserver>
-       
+
         <!--Properties which must be used when installing locally a server ZIP distribution -->
         <version.org.wildfly>10.0.0.Final</version.org.wildfly>
         <version.org.wildfly.core>2.0.10.Final</version.org.wildfly.core>
 
         <!-- The id of the maven distribution which is building the current wf kit -->
         <wf.dist.id>jboss-wf-dist</wf.dist.id>
-        
+
         <!--The name of binary distribution -->
         <binary.dist.name>binary-dist</binary.dist.name>
 
@@ -214,6 +214,13 @@
 
         <!--Skip long running tests by default-->
         <skipLongRunningTests>true</skipLongRunningTests>
+
+        <!-- ***************** -->
+        <!-- Repository Deployment URLs -->
+        <!-- ***************** -->
+        <jboss.releases.repo.url>http://nexus.data-experts.de:8081/nexus/content/repositories/portal/</jboss.releases.repo.url>
+        <jboss.snapshots.repo.url>http://nexus.data-experts.de:8081/nexus/content/repositories/portal-snapshot/</jboss.snapshots.repo.url>
+
     </properties>
 
     <profiles>
@@ -491,8 +498,8 @@
                 <dataSource.username>DBALLO02</dataSource.username>
                 <dataSource.password>DBALLO02</dataSource.password>
             </properties>
-        </profile>  
-        <!-- 
+        </profile>
+        <!--
             Oracle 11g docker profile from https://github.com/wnameless/docker-oracle-xe-11g
         -->
         <profile>
@@ -1143,9 +1150,9 @@
                 <artifactId>jboss-transaction-api_1.1_spec</artifactId>
                 <version>${version.org.jboss.spec.javax.transaction.jboss-transaction-api_1.1_spec}</version>
             </dependency>
-            
-            <!-- 
-                Used by ModeShape's persistence providers...            
+
+            <!--
+                Used by ModeShape's persistence providers...
             -->
             <!-- H2 is used for testing in some cases regardless of the DB profile-->
             <dependency>
@@ -1167,7 +1174,7 @@
                 <artifactId>jgroups</artifactId>
                 <version>${version.org.jgroups}</version>
             </dependency>
-            
+
             <!-- Heap and file-based maps -->
             <dependency>
                 <groupId>org.mapdb</groupId>
@@ -1231,7 +1238,7 @@
                 <artifactId>chemistry-opencmis-server-support</artifactId>
                 <version>${version.org.apache.chemistry.opencmis}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.chemistry.opencmis</groupId>
                 <artifactId>chemistry-opencmis-server-jcr</artifactId>
@@ -1305,7 +1312,7 @@
                 <artifactId>commons-fileupload</artifactId>
                 <version>${version.commons-fileupload}</version>
             </dependency>
-            
+
             <!--
                 Demo module
             -->
@@ -1381,13 +1388,13 @@
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-analyzers-common</artifactId>
                 <version>${version.org.apache.lucene}</version>
-            </dependency> 
+            </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-queryparser</artifactId>
                 <version>${version.org.apache.lucene}</version>
-            </dependency> 
-          
+            </dependency>
+
             <!--
                Web Modules dependencies
             -->
@@ -1621,7 +1628,7 @@
                 most of them and only keep a few that are for Microsoft Office documents,
                 HTML, XML and PDF. When others are needed, they can simply be added to
                 an application's dependencies.
-                
+
                 Note that 'modeshape-jcr' excludes even more transitive dependencies, since it
                 only uses the MIME type detector functionality, whereas the 'modeshape-extractor-tika'
                 uses everything defined here.
@@ -1639,7 +1646,7 @@
                     <exclusion>
                         <groupId>com.github.junrar</groupId>
                         <artifactId>junrar</artifactId>
-                    </exclusion> 
+                    </exclusion>
                     <exclusion>
                         <groupId>org.apache.commons</groupId>
                         <artifactId>commons-csv</artifactId>
@@ -1659,15 +1666,15 @@
                     <exclusion>
                         <groupId>edu.ucar</groupId>
                         <artifactId>netcdf4</artifactId>
-                    </exclusion>   
+                    </exclusion>
                     <exclusion>
                         <groupId>edu.ucar</groupId>
                         <artifactId>grib</artifactId>
-                    </exclusion>    
+                    </exclusion>
                     <exclusion>
                         <groupId>edu.ucar</groupId>
                         <artifactId>cdm</artifactId>
-                    </exclusion>  
+                    </exclusion>
                     <exclusion>
                         <groupId>edu.ucar</groupId>
                         <artifactId>httpservices</artifactId>
@@ -1701,11 +1708,11 @@
                         <groupId>de.l3s.boilerpipe</groupId>
                         <artifactId>boilerpipe</artifactId>
                     </exclusion>
-                    <!-- 
+                    <!--
                     PDFBox declares the Bouncy Castle dependencies
                     as optional, and Tika always depends on them to avoid
-                    problems with encrypted PDFs (see TIKA-370). 
-                    We exclude them by default. 
+                    problems with encrypted PDFs (see TIKA-370).
+                    We exclude them by default.
                     -->
                     <exclusion>
                       <groupId>org.bouncycastle</groupId>
@@ -1774,7 +1781,7 @@
                 <version>${version.org.jboss.jbossts.jta}</version>
                 <scope>test</scope>
             </dependency>
-          
+
             <!--
                 JBOSS AS subsystem
             -->
@@ -1942,13 +1949,13 @@
                <artifactId>elasticsearch</artifactId>
                <version>${version.elasticsearch}</version>
                <scope>test</scope>
-            </dependency>            
+            </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
                 <artifactId>jna</artifactId>
                 <version>${version.jna}</version>
                 <scope>test</scope>
-            </dependency>                
+            </dependency>
 
             <!--Test dependency which allows custom JNDI bindings-->
             <dependency>
@@ -1969,4 +1976,18 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <distributionManagement>
+        <repository>
+            <id>jboss-releases-repository</id>
+            <name>JBoss Releases Repository</name>
+            <url>${jboss.releases.repo.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>jboss-snapshots-repository</id>
+            <name>JBoss Snapshots Repository</name>
+            <url>${jboss.snapshots.repo.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>

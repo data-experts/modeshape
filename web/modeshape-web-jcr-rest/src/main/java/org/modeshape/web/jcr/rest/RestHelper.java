@@ -58,8 +58,6 @@ public final class RestHelper {
     private static final List<SimpleDateFormat> ISO8601_DATE_PARSERS = Arrays.asList(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
                                                                                      new SimpleDateFormat("yyyy-MM-dd"));
 
-    private static final Logger LOGGER = WebLogger.getLogger(RestHelper.class);
-
     static {
         for(SimpleDateFormat format:ISO8601_DATE_PARSERS) {
             format.setLenient(false);

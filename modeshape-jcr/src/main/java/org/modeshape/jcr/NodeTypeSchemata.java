@@ -24,10 +24,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.jcr.PropertyType;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.OnParentVersionAction;
+
 import org.modeshape.common.annotation.Immutable;
 import org.modeshape.common.annotation.NotThreadSafe;
 import org.modeshape.jcr.api.query.qom.Operator;
@@ -54,22 +56,28 @@ import org.modeshape.jcr.value.basic.LocalNamespaceRegistry;
 public class NodeTypeSchemata implements Schemata {
 
     protected static final boolean DEFAULT_CAN_CONTAIN_REFERENCES = true;
+
     protected static final boolean DEFAULT_FULL_TEXT_SEARCHABLE = true;
 
     private final Schemata schemata;
+
     private final Map<Integer, String> types;
+
     private final Map<String, String> prefixesByUris = new HashMap<String, String>();
+
     private final boolean includeColumnsForInheritedProperties;
+
     private final boolean includePseudoColumnsInSelectStar;
+
     private final NodeTypes nodeTypes;
+
     private final Map<JcrNodeType, Collection<JcrNodeType>> subtypesByName = new HashMap<JcrNodeType, Collection<JcrNodeType>>();
+
     private final List<JcrPropertyDefinition> pseudoProperties = new ArrayList<JcrPropertyDefinition>();
+
     private final Name[] keyPropertyNames;
 
-    NodeTypeSchemata( ExecutionContext context,
-                      NodeTypes nodeTypes,
-                      boolean includeColumnsForInheritedProperties,
-                      boolean includePseudoColumnsInSelectStar ) {
+    NodeTypeSchemata(ExecutionContext context, NodeTypes nodeTypes, boolean includeColumnsForInheritedProperties, boolean includePseudoColumnsInSelectStar) {
         this.includeColumnsForInheritedProperties = includeColumnsForInheritedProperties;
         this.includePseudoColumnsInSelectStar = includePseudoColumnsInSelectStar;
         this.nodeTypes = nodeTypes;
@@ -117,7 +125,7 @@ public class NodeTypeSchemata implements Schemata {
             pseudoProperties.add(pseudoProperty(context, pseudoColumn.getQualifiedName(), pseudoColumn.getType()));
         }
 
-        keyPropertyNames = new Name[] {JcrLexicon.UUID, ModeShapeLexicon.ID};
+        keyPropertyNames = new Name[] { JcrLexicon.UUID, ModeShapeLexicon.ID };
 
         // Create the "ALLNODES" table, which will contain all possible properties ...
         addAllNodesTable(builder, context, pseudoProperties, keyPropertyNames);
@@ -130,32 +138,25 @@ public class NodeTypeSchemata implements Schemata {
         schemata = builder.build();
     }
 
-    protected JcrPropertyDefinition pseudoProperty( ExecutionContext context,
-                                                    Name name,
-                                                    int propertyType ) {
+    protected JcrPropertyDefinition pseudoProperty(ExecutionContext context, Name name, int propertyType) {
         int opv = OnParentVersionAction.IGNORE;
         boolean autoCreated = true;
         boolean mandatory = true;
         boolean isProtected = true;
         boolean multiple = false;
-        boolean fullTextSearchable = false;
+        boolean fullTextSearchable = name.getLocalName().equals("name");
         boolean queryOrderable = true;
         JcrValue[] defaultValues = null;
         String[] valueConstraints = new String[] {};
         String[] queryOperators = null;
-        return new JcrPropertyDefinition(context, null, null, name, opv, autoCreated, mandatory, isProtected, defaultValues,
-                                         propertyType, valueConstraints, multiple, fullTextSearchable, queryOrderable,
-                                         queryOperators);
+        return new JcrPropertyDefinition(context, null, null, name, opv, autoCreated, mandatory, isProtected, defaultValues, propertyType, valueConstraints, multiple, fullTextSearchable, queryOrderable, queryOperators);
     }
 
-    protected JcrNodeType getNodeType( Name nodeTypeName ) {
+    protected JcrNodeType getNodeType(Name nodeTypeName) {
         return nodeTypes.getNodeType(nodeTypeName);
     }
 
-    protected final void addAllNodesTable( ImmutableSchemata.Builder builder,
-                                           ExecutionContext context,
-                                           List<JcrPropertyDefinition> additionalProperties,
-                                           Name[] keyPropertyNames ) {
+    protected final void addAllNodesTable(ImmutableSchemata.Builder builder, ExecutionContext context, List<JcrPropertyDefinition> additionalProperties, Name[] keyPropertyNames) {
         NamespaceRegistry registry = context.getNamespaceRegistry();
         TypeSystem typeSystem = context.getValueFactories().getTypeSystem();
 
@@ -164,7 +165,8 @@ public class NodeTypeSchemata implements Schemata {
         Map<String, String> typesForNames = new HashMap<String, String>();
         Set<String> fullTextSearchableNames = new HashSet<String>();
         for (JcrPropertyDefinition defn : nodeTypes.getAllPropertyDefinitions()) {
-            if (defn.isResidual()) continue;
+            if (defn.isResidual())
+                continue;
             Name name = defn.getInternalName();
 
             String columnName = name.getString(registry);
@@ -193,20 +195,20 @@ public class NodeTypeSchemata implements Schemata {
                 type = typeSystem.getCompatibleType(previousType, type);
             }
             boolean fullTextSearchable = fullTextSearchableNames.contains(columnName) || defn.isFullTextSearchable();
-            if (fullTextSearchable) fullTextSearchableNames.add(columnName);
+            if (fullTextSearchable)
+                fullTextSearchableNames.add(columnName);
             // Add (or overwrite) the column ...
             boolean orderable = defn.isQueryOrderable();
             Set<Operator> operators = operatorsFor(defn);
             Object minimum = defn.getMinimumValue();
             Object maximum = defn.getMaximumValue();
-            builder.addColumn(tableName, columnName, type, requiredType, fullTextSearchable, orderable, minimum, maximum,
-                              operators);
+            builder.addColumn(tableName, columnName, type, requiredType, fullTextSearchable, orderable, minimum, maximum, operators);
         }
         if (additionalProperties != null) {
-            boolean fullTextSearchable = false;
             for (JcrPropertyDefinition defn : additionalProperties) {
                 Name name = defn.getInternalName();
                 String columnName = name.getString(registry);
+                boolean fullTextSearchable = columnName.equals("jcr:name");
                 assert defn.getRequiredType() != PropertyType.UNDEFINED;
                 String type = types.get(defn.getRequiredType());
                 assert type != null;
@@ -222,8 +224,7 @@ public class NodeTypeSchemata implements Schemata {
                 Object minimum = defn.getMinimumValue();
                 Object maximum = defn.getMaximumValue();
                 org.modeshape.jcr.value.PropertyType requiredType = PropertyTypeUtil.modePropertyTypeFor(defn.getRequiredType());
-                builder.addColumn(tableName, columnName, type, requiredType, fullTextSearchable, orderable, minimum, maximum,
-                                  operators);
+                builder.addColumn(tableName, columnName, type, requiredType, fullTextSearchable, orderable, minimum, maximum, operators);
                 if (!includePseudoColumnsInSelectStar) {
                     builder.excludeFromSelectStar(tableName, columnName);
                 }
@@ -238,9 +239,10 @@ public class NodeTypeSchemata implements Schemata {
         }
     }
 
-    protected Set<Operator> operatorsFor( JcrPropertyDefinition defn ) {
+    protected Set<Operator> operatorsFor(JcrPropertyDefinition defn) {
         String[] ops = defn.getAvailableQueryOperators();
-        if (ops == null || ops.length == 0) return EnumSet.allOf(Operator.class);
+        if (ops == null || ops.length == 0)
+            return EnumSet.allOf(Operator.class);
         Set<Operator> result = new HashSet<Operator>();
         for (String symbol : ops) {
             Operator op = JcrPropertyDefinition.operatorFromSymbol(symbol);
@@ -250,9 +252,7 @@ public class NodeTypeSchemata implements Schemata {
         return result;
     }
 
-    protected final void addView( ImmutableSchemata.Builder builder,
-                                  ExecutionContext context,
-                                  JcrNodeType nodeType ) {
+    protected final void addView(ImmutableSchemata.Builder builder, ExecutionContext context, JcrNodeType nodeType) {
         NamespaceRegistry registry = context.getNamespaceRegistry();
 
         if (!nodeType.isQueryable()) {
@@ -280,8 +280,10 @@ public class NodeTypeSchemata implements Schemata {
             Name name = defn.getInternalName();
 
             String columnName = name.getString(registry);
-            if (first) first = false;
-            else viewDefinition.append(',');
+            if (first)
+                first = false;
+            else
+                viewDefinition.append(',');
             viewDefinition.append('[').append(columnName).append(']');
             if (!defn.isQueryOrderable()) {
                 builder.markOrderable(tableName, columnName, false);
@@ -292,8 +294,10 @@ public class NodeTypeSchemata implements Schemata {
         for (JcrPropertyDefinition defn : pseudoProperties) {
             Name name = defn.getInternalName();
             String columnName = name.getString(registry);
-            if (first) first = false;
-            else viewDefinition.append(',');
+            if (first)
+                first = false;
+            else
+                viewDefinition.append(',');
             viewDefinition.append('[').append(columnName).append(']');
             builder.markOperators(tableName, columnName, operatorsFor(defn));
         }
@@ -315,13 +319,15 @@ public class NodeTypeSchemata implements Schemata {
             Collection<JcrNodeType> typeAndSubtypes = subtypesByName.get(nodeType);
             for (JcrNodeType thisOrSupertype : typeAndSubtypes) {
                 if (thisOrSupertype.isMixin()) {
-                    if (mixinTypeCount > 0) mixinTypes.append(',');
+                    if (mixinTypeCount > 0)
+                        mixinTypes.append(',');
                     assert prefixesByUris.containsKey(thisOrSupertype.getInternalName().getNamespaceUri());
                     String name = thisOrSupertype.getInternalName().getString(registry);
                     mixinTypes.append('[').append(name).append(']');
                     ++mixinTypeCount;
                 } else {
-                    if (primaryTypeCount > 0) primaryTypes.append(',');
+                    if (primaryTypeCount > 0)
+                        primaryTypes.append(',');
                     assert prefixesByUris.containsKey(thisOrSupertype.getInternalName().getNamespaceUri());
                     String name = thisOrSupertype.getInternalName().getString(registry);
                     primaryTypes.append('[').append(name).append(']');
@@ -337,7 +343,8 @@ public class NodeTypeSchemata implements Schemata {
                 }
             }
             if (mixinTypeCount > 0) {
-                if (primaryTypeCount > 0) viewDefinition.append(" OR ");
+                if (primaryTypeCount > 0)
+                    viewDefinition.append(" OR ");
                 viewDefinition.append('[').append(JcrLexicon.MIXIN_TYPES.getString(registry)).append(']');
                 if (mixinTypeCount == 1) {
                     viewDefinition.append('=').append(mixinTypes);
@@ -357,7 +364,7 @@ public class NodeTypeSchemata implements Schemata {
     }
 
     @Override
-    public Table getTable( SelectorName name ) {
+    public Table getTable(SelectorName name) {
         return schemata.getTable(name);
     }
 
@@ -365,11 +372,11 @@ public class NodeTypeSchemata implements Schemata {
      * Get a schemata instance that works with the supplied session and that uses the session-specific namespace mappings. Note
      * that the resulting instance does not change as the session's namespace mappings are changed, so when that happens the
      * JcrSession must call this method again to obtain a new schemata.
-     * 
+     *
      * @param session the session; may not be null
      * @return the schemata that can be used for the session; never null
      */
-    public Schemata getSchemataForSession( JcrSession session ) {
+    public Schemata getSchemataForSession(JcrSession session) {
         assert session != null;
         // If the session does not override any namespace mappings used in this schemata ...
         if (!overridesNamespaceMappings(session)) {
@@ -383,20 +390,21 @@ public class NodeTypeSchemata implements Schemata {
 
     /**
      * Determine if the session overrides any namespace mappings used by this schemata.
-     * 
+     *
      * @param session the session; may not be null
      * @return true if the session overrides one or more namespace mappings used in this schemata, or false otherwise
      */
-    private boolean overridesNamespaceMappings( JcrSession session ) {
+    private boolean overridesNamespaceMappings(JcrSession session) {
         NamespaceRegistry registry = session.context().getNamespaceRegistry();
         if (registry instanceof LocalNamespaceRegistry) {
-            Set<Namespace> localNamespaces = ((LocalNamespaceRegistry)registry).getLocalNamespaces();
+            Set<Namespace> localNamespaces = ((LocalNamespaceRegistry) registry).getLocalNamespaces();
             if (localNamespaces.isEmpty()) {
                 // There are no local mappings ...
                 return false;
             }
             for (Namespace namespace : localNamespaces) {
-                if (prefixesByUris.containsKey(namespace.getNamespaceUri())) return true;
+                if (prefixesByUris.containsKey(namespace.getNamespaceUri()))
+                    return true;
             }
             // None of the local namespace mappings overrode any namespaces used by this schemata ...
             return false;
@@ -408,7 +416,8 @@ public class NodeTypeSchemata implements Schemata {
                 // This namespace is not used by this schemata ...
                 continue;
             }
-            if (!namespace.getPrefix().equals(expectedPrefix)) return true;
+            if (!namespace.getPrefix().equals(expectedPrefix))
+                return true;
         }
         return false;
     }
@@ -424,12 +433,16 @@ public class NodeTypeSchemata implements Schemata {
     @NotThreadSafe
     protected class SessionSchemata implements Schemata {
         private final JcrSession session;
+
         private final ExecutionContext context;
+
         private final ImmutableSchemata.Builder builder;
+
         private final NameFactory nameFactory;
+
         private Schemata schemata;
 
-        protected SessionSchemata( JcrSession session ) {
+        protected SessionSchemata(JcrSession session) {
             this.session = session;
             this.context = this.session.context();
             this.nameFactory = context.getValueFactories().getNameFactory();
@@ -440,13 +453,14 @@ public class NodeTypeSchemata implements Schemata {
         }
 
         @Override
-        public Table getTable( SelectorName name ) {
+        public Table getTable(SelectorName name) {
             Table table = schemata.getTable(name);
             if (table == null) {
                 // Try getting it ...
                 Name nodeTypeName = nameFactory.create(name.name());
                 JcrNodeType nodeType = getNodeType(nodeTypeName);
-                if (nodeType == null) return null;
+                if (nodeType == null)
+                    return null;
                 addView(builder, context, nodeType);
                 schemata = builder.build();
             }

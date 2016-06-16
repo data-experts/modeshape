@@ -15,7 +15,6 @@
  */
 package org.modeshape.jcr;
 
-import static org.modeshape.jcr.BackupDocumentWriter.GZIP_EXTENSION;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -40,8 +39,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
 import javax.jcr.RepositoryException;
 import javax.transaction.SystemException;
+
 import org.modeshape.common.annotation.NotThreadSafe;
 import org.modeshape.common.collection.Problems;
 import org.modeshape.common.collection.SimpleProblems;
@@ -67,6 +68,8 @@ import org.modeshape.schematic.document.Document;
 import org.modeshape.schematic.document.EditableArray;
 import org.modeshape.schematic.document.EditableDocument;
 import org.modeshape.schematic.document.Json;
+
+import static org.modeshape.jcr.BackupDocumentWriter.GZIP_EXTENSION;
 
 /**
  * A service used to generate backups from content and restore repository content from backups.
@@ -445,9 +448,11 @@ public class BackupService {
 
                     // PHASE 2:
                     // Write out the repository metadata document (which may have not changed) ...
+                    /* Metadaten wurden bereits in Phase 1 geschrieben
                     NodeKey metadataKey = repositoryCache.getRepositoryMetadataDocumentKey();
                     SchematicEntry entry = documentStore.get(metadataKey.toString());
                     writeToContentArea(entry, contentWriter);
+                    */
                 } catch (Exception e) {
                     I18n msg = JcrI18n.problemObtainingDocumentsToBackup;
                     this.problems.addError(msg, repositoryName(), backupLocation(), e.getMessage());

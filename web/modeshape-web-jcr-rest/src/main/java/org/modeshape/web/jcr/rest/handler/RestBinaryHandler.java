@@ -20,17 +20,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.jcr.Binary;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.lock.Lock;
-import javax.jcr.lock.LockManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import org.modeshape.common.util.CheckArg;
 import org.modeshape.common.util.StringUtil;
 import org.modeshape.jcr.api.JcrConstants;
@@ -130,15 +130,8 @@ public final class RestBinaryHandler extends AbstractHandler {
         String parentPath = parentPath(binaryPropertyAbsPath);
         Session session = getSession(request, repositoryName, workspaceName);
         Node parent = (Node)itemAtPath(parentPath, session);
-        if(parent.isLocked()) {
-            LockManager lockManager = parent.getSession().getWorkspace().getLockManager();
-            Lock lock = lockManager.getLock(parent.getPath());
-            if (lock.getLockOwner().equals(parent.getSession().getUserID())) {
-                //Add LockToken to current session
-                lockManager.unlock(lock.getNode().getPath());
-                lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
-            }
-        }
+
+        attachLockToCurrentSession(parent);
 
         int lastSlashInd = binaryPropertyAbsPath.lastIndexOf('/');
         String propertyName = lastSlashInd == -1 ? binaryPropertyAbsPath : binaryPropertyAbsPath.substring(lastSlashInd + 1);
@@ -217,15 +210,9 @@ public final class RestBinaryHandler extends AbstractHandler {
                 String parentPath = "/";
 
                 Node parent = session.getNode(parentPath);
-                if(parent.isLocked()) {
-                    LockManager lockManager = parent.getSession().getWorkspace().getLockManager();
-                    Lock lock = lockManager.getLock(parent.getPath());
-                    if (lock.getLockOwner().equals(parent.getSession().getUserID())) {
-                        //Add LockToken to current session
-                        lockManager.unlock(lock.getNode().getPath());
-                        lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
-                    }
-                }
+
+                attachLockToCurrentSession(parent);
+
                 for (int i = 0; i < parsedSegments.size() - 1; i++) {
                     String childName = parsedSegments.get(i);
                     try {
@@ -238,15 +225,9 @@ public final class RestBinaryHandler extends AbstractHandler {
                 content = fileNode.addNode(JcrConstants.JCR_CONTENT, JcrConstants.NT_RESOURCE);
                 responseStatus = Response.Status.CREATED;
             } else {
-                if(fileNode.isLocked()) {
-                    LockManager lockManager = fileNode.getSession().getWorkspace().getLockManager();
-                    Lock lock = lockManager.getLock(fileNode.getPath());
-                    if (lock.getLockOwner().equals(fileNode.getSession().getUserID())) {
-                        //Add LockToken to current session
-                        lockManager.unlock(fileNode.getPath());
-                        lockManager.lock(fileNode.getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
-                    }
-                }
+
+                attachLockToCurrentSession(fileNode);
+
                 if (!JcrConstants.NT_FILE.equalsIgnoreCase(fileNode.getPrimaryNodeType().getName())) {
                     return exceptionResponse("The node at '" + filePath + "' does not have the [nt:file] primary type");
                 }

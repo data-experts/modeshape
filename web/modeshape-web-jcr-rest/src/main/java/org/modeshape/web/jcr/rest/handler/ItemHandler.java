@@ -39,8 +39,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
-import javax.jcr.lock.Lock;
-import javax.jcr.lock.LockManager;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.version.VersionManager;
 import javax.servlet.http.HttpServletRequest;
@@ -85,15 +83,7 @@ public abstract class ItemHandler extends AbstractHandler {
 
         JSONObject properties = getProperties(jsonNode);
 
-        if(parentNode.isLocked()) {
-            LockManager lockManager = parentNode.getSession().getWorkspace().getLockManager();
-            Lock lock = lockManager.getLock(parentNode.getPath());
-            if (lock.getLockOwner().equals(parentNode.getSession().getUserID())) {
-                //Add LockToken to current session
-                lockManager.unlock(lock.getNode().getPath());
-                lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
-            }
-        }
+        attachLockToCurrentSession(parentNode);
 
         if (properties.has(PRIMARY_TYPE_PROPERTY)) {
             String primaryType = properties.getString(PRIMARY_TYPE_PROPERTY);
@@ -366,15 +356,7 @@ public abstract class ItemHandler extends AbstractHandler {
 
         changes.checkout(node);
 
-        if(node.isLocked()) {
-            LockManager lockManager = node.getSession().getWorkspace().getLockManager();
-            Lock lock = lockManager.getLock(node.getPath());
-            if (lock.getLockOwner().equals(node.getSession().getUserID())) {
-                //Add LockToken to current session
-                lockManager.unlock(lock.getNode().getPath());
-                lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
-            }
-        }
+        attachLockToCurrentSession(node);
 
         // Change the primary type first ...
         if (properties.has(PRIMARY_TYPE_PROPERTY)) {

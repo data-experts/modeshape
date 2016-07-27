@@ -15,11 +15,9 @@
  */
 package org.modeshape.web.jcr.rest.handler;
 
-import static org.modeshape.web.jcr.rest.RestHelper.BINARY_METHOD_NAME;
-import static org.modeshape.web.jcr.rest.RestHelper.ITEMS_METHOD_NAME;
-import static org.modeshape.web.jcr.rest.RestHelper.URL_ENCODER;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -29,8 +27,11 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.lock.Lock;
+import javax.jcr.lock.LockManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+
 import org.modeshape.common.util.StringUtil;
 import org.modeshape.jcr.api.JcrConstants;
 import org.modeshape.jcr.api.Logger;
@@ -41,6 +42,10 @@ import org.modeshape.web.jcr.rest.model.RestException;
 import org.modeshape.web.jcr.rest.model.RestItem;
 import org.modeshape.web.jcr.rest.model.RestNode;
 import org.modeshape.web.jcr.rest.model.RestProperty;
+
+import static org.modeshape.web.jcr.rest.RestHelper.BINARY_METHOD_NAME;
+import static org.modeshape.web.jcr.rest.RestHelper.ITEMS_METHOD_NAME;
+import static org.modeshape.web.jcr.rest.RestHelper.URL_ENCODER;
 
 /**
  * Base class for the different rest handler implementations, to which the rest services delegate operations.
@@ -335,5 +340,22 @@ public abstract class AbstractHandler {
 
     protected Response exceptionResponse(String message) {
         return Response.status(Response.Status.BAD_REQUEST).entity(new RestException(message)).build();
+    }
+
+    /**
+     * Übernimmt eine bereits vorhandene Sperre aus einer anderen Session, wenn die User-IDs übereinstimmen
+     * @param node Node die ggf. gesperrt ist
+     * @throws RepositoryException wenn bei der Übernahme ein Fehler auftritt
+     */
+    protected void attachLockToCurrentSession(Node node) throws RepositoryException {
+        if(node.isLocked()) {
+            LockManager lockManager = node.getSession().getWorkspace().getLockManager();
+            Lock lock = lockManager.getLock(node.getPath());
+            if (lock.getLockOwner().equals(node.getSession().getUserID())) {
+                //Add LockToken to current session
+                lockManager.unlock(lock.getNode().getPath());
+                lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
+            }
+        }
     }
 }

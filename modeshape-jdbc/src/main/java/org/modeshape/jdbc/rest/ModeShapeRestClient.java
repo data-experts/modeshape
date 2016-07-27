@@ -16,6 +16,8 @@
 package org.modeshape.jdbc.rest;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+
 import javax.jcr.query.Query;
 import org.modeshape.common.util.CheckArg;
 import org.modeshape.jdbc.JdbcI18n;
@@ -132,7 +134,13 @@ public final class ModeShapeRestClient {
                               String queryLanguage ) {
         String url = jsonRestClient.appendToURL(QUERY_METHOD);
         String contentType = contentTypeForQueryLanguage(queryLanguage);
-        JSONRestClient.Response response = jsonRestClient.postStream(new ByteArrayInputStream(query.getBytes()), url, contentType);
+        JSONRestClient.Response response = null;
+        try {
+            response = jsonRestClient.postStream(new ByteArrayInputStream(query.getBytes("UTF-8")), url, contentType);
+        } catch (UnsupportedEncodingException e) {
+            //UTF-8 ist immer verfügbar
+            throw new RuntimeException(e);
+        }
         if (!response.isOK()) {
             throw new RuntimeException(JdbcI18n.invalidServerResponse.text(url, response.asString()));
         }
@@ -150,8 +158,14 @@ public final class ModeShapeRestClient {
                              String queryLanguage ) {
         String url = jsonRestClient.appendToURL(QUERY_PLAN_METHOD);
         String contentType = contentTypeForQueryLanguage(queryLanguage);
-        JSONRestClient.Response response = jsonRestClient.postStreamTextPlain(new ByteArrayInputStream(query.getBytes()), url,
-                                                                              contentType);
+        JSONRestClient.Response response = null;
+        try {
+            response = jsonRestClient.postStreamTextPlain(new ByteArrayInputStream(query.getBytes("UTF-8")), url,
+                                                                                  contentType);
+        } catch (UnsupportedEncodingException e) {
+            //UTF-8 ist immer verfügbar
+            throw new RuntimeException(e);
+        }
         if (!response.isOK()) {
             throw new RuntimeException(JdbcI18n.invalidServerResponse.text(url, response.asString()));
         }

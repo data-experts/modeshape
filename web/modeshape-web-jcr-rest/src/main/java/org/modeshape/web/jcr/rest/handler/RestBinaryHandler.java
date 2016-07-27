@@ -135,8 +135,8 @@ public final class RestBinaryHandler extends AbstractHandler {
             Lock lock = lockManager.getLock(parent.getPath());
             if (lock.getLockOwner().equals(parent.getSession().getUserID())) {
                 //Add LockToken to current session
-                lockManager.unlock(parent.getPath());
-                lockManager.lock(parent.getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
+                lockManager.unlock(lock.getNode().getPath());
+                lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
             }
         }
 
@@ -222,8 +222,8 @@ public final class RestBinaryHandler extends AbstractHandler {
                     Lock lock = lockManager.getLock(parent.getPath());
                     if (lock.getLockOwner().equals(parent.getSession().getUserID())) {
                         //Add LockToken to current session
-                        lockManager.unlock(parent.getPath());
-                        lockManager.lock(parent.getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
+                        lockManager.unlock(lock.getNode().getPath());
+                        lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
                     }
                 }
                 for (int i = 0; i < parsedSegments.size() - 1; i++) {

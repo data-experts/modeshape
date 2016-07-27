@@ -90,8 +90,8 @@ public abstract class ItemHandler extends AbstractHandler {
             Lock lock = lockManager.getLock(parentNode.getPath());
             if (lock.getLockOwner().equals(parentNode.getSession().getUserID())) {
                 //Add LockToken to current session
-                lockManager.unlock(parentNode.getPath());
-                lockManager.lock(parentNode.getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
+                lockManager.unlock(lock.getNode().getPath());
+                lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
             }
         }
 
@@ -371,8 +371,8 @@ public abstract class ItemHandler extends AbstractHandler {
             Lock lock = lockManager.getLock(node.getPath());
             if (lock.getLockOwner().equals(node.getSession().getUserID())) {
                 //Add LockToken to current session
-                lockManager.unlock(node.getPath());
-                lockManager.lock(node.getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
+                lockManager.unlock(lock.getNode().getPath());
+                lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
             }
         }
 

@@ -23,6 +23,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -36,6 +38,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -51,19 +54,22 @@ import org.modeshape.common.util.StringUtil;
  *
  * @author Horia Chiorean (hchiorea@redhat.com)
  */
-@SuppressWarnings( "deprecation" )
+@SuppressWarnings("deprecation")
 public final class JSONRestClient {
 
     private static final UrlEncoder URL_ENCODER = new UrlEncoder().setSlashEncoded(false);
+
     protected final HttpClient httpClient;
+
     private final HttpClientContext httpContext;
+
     private final HttpHost host;
+
     private final String url;
+
     private final String baseUrl;
 
-    protected JSONRestClient( String url,
-                              String username,
-                              String password ) {
+    protected JSONRestClient(String url, String username, String password) {
         CheckArg.isNotNull(url, "url");
         try {
             this.url = url;
@@ -80,8 +86,7 @@ public final class JSONRestClient {
             this.httpContext = HttpClientContext.create();
             if (!StringUtil.isBlank(username)) {
                 BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(new AuthScope(host()),
-                                                   new UsernamePasswordCredentials(username, password));
+                credentialsProvider.setCredentials(new AuthScope(host()), new UsernamePasswordCredentials(username, password));
                 httpContext.setCredentialsProvider(credentialsProvider);
             }
         } catch (MalformedURLException e) {
@@ -101,36 +106,25 @@ public final class JSONRestClient {
         return new Response(newJSONRequest(HttpGet.class, null, null, null));
     }
 
-    public Response doGet( String url ) {
+    public Response doGet(String url) {
         return new Response(newJSONRequest(HttpGet.class, null, null, url));
     }
 
-    protected Response postStream( InputStream is,
-                                   String url,
-                                   String requestContentType ) {
+    protected Response postStream(InputStream is, String url, String requestContentType) {
         HttpPost post = newJSONRequest(HttpPost.class, is, requestContentType, url);
         return new Response(post);
     }
 
-    protected Response postStreamTextPlain( InputStream is,
-                                            String url,
-                                            String requestContentType ) {
+    protected Response postStreamTextPlain(InputStream is, String url, String requestContentType) {
         HttpPost post = newRequest(HttpPost.class, is, requestContentType, MediaType.TEXT_PLAIN, url);
         return new Response(post);
     }
 
-    private <T extends HttpRequestBase> T newJSONRequest( Class<T> clazz,
-                                                          InputStream inputStream,
-                                                          String contentType,
-                                                          String url ) {
+    private <T extends HttpRequestBase> T newJSONRequest(Class<T> clazz, InputStream inputStream, String contentType, String url) {
         return newRequest(clazz, inputStream, contentType, MediaType.APPLICATION_JSON, url);
     }
 
-    private <T extends HttpRequestBase> T newRequest( Class<T> clazz,
-                                                      InputStream inputStream,
-                                                      String contentType,
-                                                      String accepts,
-                                                      String url ) {
+    private <T extends HttpRequestBase> T newRequest(Class<T> clazz, InputStream inputStream, String contentType, String accepts, String url) {
         assert accepts != null;
         try {
             if (url == null) {
@@ -153,7 +147,7 @@ public final class JSONRestClient {
             if (inputStream != null) {
                 assert result instanceof HttpEntityEnclosingRequestBase;
                 InputStreamEntity inputStreamEntity = new InputStreamEntity(inputStream, inputStream.available());
-                ((HttpEntityEnclosingRequestBase)result).setEntity(new BufferedHttpEntity(inputStreamEntity));
+                ((HttpEntityEnclosingRequestBase) result).setEntity(new BufferedHttpEntity(inputStreamEntity));
             }
 
             return result;
@@ -162,8 +156,7 @@ public final class JSONRestClient {
         }
     }
 
-    protected static String append( String url,
-                                    String... segments ) {
+    protected static String append(String url, String... segments) {
         for (String segment : segments) {
             if (url.endsWith(segment)) {
                 continue;
@@ -179,11 +172,11 @@ public final class JSONRestClient {
         return url;
     }
 
-    protected String appendToBaseURL( String... segments ) {
+    protected String appendToBaseURL(String... segments) {
         return append(baseUrl, segments);
     }
 
-    protected String appendToURL( String... segments ) {
+    protected String appendToURL(String... segments) {
         return append(url, segments);
     }
 
@@ -195,11 +188,16 @@ public final class JSONRestClient {
     public class Response {
 
         private final HttpResponse response;
+
         private byte[] content;
+
         private String contentString;
+
         private JSONObject contentJSON;
 
-        protected Response( HttpRequestBase request ) {
+        private Charset contentEncoding;
+
+        protected Response(HttpRequestBase request) {
             try {
                 response = httpClient.execute(host(), request, httpContext);
                 HttpEntity entity = response.getEntity();
@@ -208,6 +206,7 @@ public final class JSONRestClient {
                     entity.writeTo(baous);
                     EntityUtils.consumeQuietly(entity);
                     content = baous.toByteArray();
+                    contentEncoding = ContentType.get(entity).getCharset();
                 } else {
                     content = new byte[0];
                 }
@@ -221,7 +220,7 @@ public final class JSONRestClient {
         public byte[] getContent() {
             return content;
         }
-        
+
         public boolean isOK() {
             return hasCode(HttpURLConnection.HTTP_OK);
         }
@@ -230,7 +229,7 @@ public final class JSONRestClient {
             return response.getStatusLine().getStatusCode();
         }
 
-        private boolean hasCode( int statusCode ) {
+        private boolean hasCode(int statusCode) {
             return getStatusCode() == statusCode;
         }
 
@@ -247,7 +246,7 @@ public final class JSONRestClient {
 
         public String asString() {
             if (contentString == null) {
-                contentString = new String(content);
+                contentString = new String(content, contentEncoding);
             }
             return contentString;
         }

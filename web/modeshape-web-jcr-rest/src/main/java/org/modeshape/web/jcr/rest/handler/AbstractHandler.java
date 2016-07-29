@@ -81,20 +81,17 @@ public abstract class AbstractHandler {
 
     /**
      * Returns an active session for the given workspace name in the named repository.
-     * 
+     *
      * @param request the servlet request; may not be null or unauthenticated
      * @param rawRepositoryName the URL-encoded name of the repository in which the session is created
      * @param rawWorkspaceName the URL-encoded name of the workspace to which the session should be connected
      * @return an active session with the given workspace in the named repository
      * @throws RepositoryException if any other error occurs
      */
-    protected Session getSession( HttpServletRequest request,
-                                  String rawRepositoryName,
-                                  String rawWorkspaceName ) throws RepositoryException {
+    protected Session getSession(HttpServletRequest request, String rawRepositoryName, String rawWorkspaceName) throws RepositoryException {
         assert request != null;
         if (ACTIVE_SESSION.get() == null) {
-            Session session = RepositoryManager.getSession(request, repositoryNameFor(rawRepositoryName), workspaceNameFor(
-                    rawWorkspaceName));
+            Session session = RepositoryManager.getSession(request, repositoryNameFor(rawRepositoryName), workspaceNameFor(rawWorkspaceName));
             ACTIVE_SESSION.set(session);
         }
         return ACTIVE_SESSION.get();
@@ -116,7 +113,7 @@ public abstract class AbstractHandler {
         }
     }
 
-    private String workspaceNameFor( String rawWorkspaceName ) {
+    private String workspaceNameFor(String rawWorkspaceName) {
         String workspaceName = RestHelper.URL_ENCODER.decode(rawWorkspaceName);
 
         if (EMPTY_WORKSPACE_NAME.equals(workspaceName)) {
@@ -126,7 +123,7 @@ public abstract class AbstractHandler {
         return workspaceName;
     }
 
-    private String repositoryNameFor( String rawRepositoryName ) {
+    private String repositoryNameFor(String rawRepositoryName) {
         String repositoryName = RestHelper.URL_ENCODER.decode(rawRepositoryName);
 
         if (EMPTY_REPOSITORY_NAME.equals(repositoryName)) {
@@ -136,9 +133,7 @@ public abstract class AbstractHandler {
         return repositoryName;
     }
 
-    protected List<String> restPropertyValues( Property property,
-                                               String baseUrl,
-                                               Session session ) throws RepositoryException {
+    protected List<String> restPropertyValues(Property property, String baseUrl, Session session) throws RepositoryException {
         List<String> result = new ArrayList<String>();
 
         if (property.isMultiple()) {
@@ -168,10 +163,7 @@ public abstract class AbstractHandler {
         return result;
     }
 
-    protected String valueToString( String absPropertyPath,
-                                    Value value,
-                                    String baseUrl,
-                                    Session session ) {
+    protected String valueToString(String absPropertyPath, Value value, String baseUrl, Session session) {
         if (value == null) {
             return null;
         }
@@ -197,9 +189,7 @@ public abstract class AbstractHandler {
         }
     }
 
-    private String restValueForReference( Value value,
-                                          String baseUrl,
-                                          Session session ) throws RepositoryException {
+    private String restValueForReference(Value value, String baseUrl, Session session) throws RepositoryException {
         String nodeId = value.getString();
         Node referredNode = session.getNodeByIdentifier(nodeId);
         if (referredNode != null) {
@@ -209,8 +199,7 @@ public abstract class AbstractHandler {
         return nodeId;
     }
 
-    private String restValueForBinary( String absPropertyPath,
-                                       String baseUrl ) {
+    private String restValueForBinary(String absPropertyPath, String baseUrl) {
         if (absPropertyPath == null) {
             logger.warn("Cannot generate rest representation of a binary value, because the property is unknown");
             return null;
@@ -218,7 +207,7 @@ public abstract class AbstractHandler {
         return RestHelper.urlFrom(baseUrl, BINARY_METHOD_NAME, encodedPath(absPropertyPath));
     }
 
-    protected Node getParentNode( Property property ) throws RepositoryException {
+    protected Node getParentNode(Property property) throws RepositoryException {
         Node parentNode = property.getParent();
         if (JcrConstants.JCR_CONTENT.equalsIgnoreCase(parentNode.getName()) && parentNode.getIndex() == 1) {
             parentNode = parentNode.getParent();
@@ -226,31 +215,24 @@ public abstract class AbstractHandler {
         return parentNode;
     }
 
-    protected Item itemAtPath( String path,
-                               Session session ) throws RepositoryException {
+    protected Item itemAtPath(String path, Session session) throws RepositoryException {
         return isRootPath(path) ? session.getRootNode() : session.getItem(path);
     }
 
-    protected Node nodeWithId( String id,
-                               Session session ) throws RepositoryException {
+    protected Node nodeWithId(String id, Session session) throws RepositoryException {
         return session.getNodeByIdentifier(id);
     }
 
-    protected boolean isRootPath( String path ) {
+    protected boolean isRootPath(String path) {
         return "/".equals(path) || "".equals(path);
     }
 
-    protected RestItem createRestItem( HttpServletRequest request,
-                                       int depth,
-                                       Session session,
-                                       Item item ) throws RepositoryException {
+    protected RestItem createRestItem(HttpServletRequest request, int depth, Session session, Item item) throws RepositoryException {
         String baseUrl = RestHelper.repositoryUrl(request);
-        return item instanceof Node ? createRestNode(session, (Node)item, baseUrl, depth) : createRestProperty(session,
-                                                                                                               (Property)item,
-                                                                                                               baseUrl);
+        return item instanceof Node ? createRestNode(session, (Node) item, baseUrl, depth) : createRestProperty(session, (Property) item, baseUrl);
     }
 
-    protected String parentPath( String path ) {
+    protected String parentPath(String path) {
         int lastSlashInd = path.lastIndexOf('/');
         if (lastSlashInd == -1) {
             return "/";
@@ -259,14 +241,15 @@ public abstract class AbstractHandler {
         return absPath(subPath);
     }
 
-    protected String absPath( String pathString ) {
+    protected String absPath(String pathString) {
         return pathString.startsWith("/") ? pathString : "/" + pathString;
     }
 
-    protected String nodeName( Node node ) throws RepositoryException {
+    protected String nodeName(Node node) throws RepositoryException {
         int index = node.getIndex();
         String name = node.getName();
-        if (index != 1) name = name + "[" + index + "]";
+        if (index != 1)
+            name = name + "[" + index + "]";
         return name;
     }
 
@@ -292,27 +275,20 @@ public abstract class AbstractHandler {
         return encodedPath.toString();
     }
 
-    private RestNode createRestNode( Session session,
-                                     Node node,
-                                     String baseUrl,
-                                     int depth ) throws RepositoryException {
+    private RestNode createRestNode(Session session, Node node, String baseUrl, int depth) throws RepositoryException {
         String nodeUrl = RestHelper.urlFrom(baseUrl, ITEMS_METHOD_NAME, encodedPath(node.getPath()));
         boolean isRoot = node.getPath().equals("/");
-        String parentUrl = isRoot ? RestHelper.urlFrom(baseUrl, ITEMS_METHOD_NAME, "..", "..") : RestHelper.urlFrom(baseUrl,
-                                                                                                                    ITEMS_METHOD_NAME,
-                                                                                                                    encodedPath(
-                                                                                                                            node.getParent()
-                                                                                                                                    .getPath()));
+        String parentUrl = isRoot ? RestHelper.urlFrom(baseUrl, ITEMS_METHOD_NAME, "..", "..") : RestHelper.urlFrom(baseUrl, ITEMS_METHOD_NAME, encodedPath(node.getParent().getPath()));
         RestNode restNode = new RestNode(nodeName(node), node.getIdentifier(), nodeUrl, parentUrl);
 
         // add the properties
-        for (PropertyIterator propertyIterator = node.getProperties(); propertyIterator.hasNext();) {
+        for (PropertyIterator propertyIterator = node.getProperties(); propertyIterator.hasNext(); ) {
             Property property = propertyIterator.nextProperty();
             restNode.addJcrProperty(createRestProperty(session, property, baseUrl));
         }
 
         // add the children
-        for (NodeIterator nodeIterator = node.getNodes(); nodeIterator.hasNext();) {
+        for (NodeIterator nodeIterator = node.getNodes(); nodeIterator.hasNext(); ) {
             Node childNode = nodeIterator.nextNode();
             RestNode restChild = null;
             if (depth > 0) {
@@ -328,9 +304,7 @@ public abstract class AbstractHandler {
         return restNode;
     }
 
-    private RestProperty createRestProperty( Session session,
-                                             Property property,
-                                             String baseUrl ) throws RepositoryException {
+    private RestProperty createRestProperty(Session session, Property property, String baseUrl) throws RepositoryException {
         List<String> values = restPropertyValues(property, baseUrl, session);
         String url = RestHelper.urlFrom(baseUrl, ITEMS_METHOD_NAME, encodedPath(property.getPath()));
         String parentUrl = RestHelper.urlFrom(baseUrl, ITEMS_METHOD_NAME, encodedPath(property.getParent().getPath()));
@@ -348,13 +322,13 @@ public abstract class AbstractHandler {
      * @throws RepositoryException wenn bei der Übernahme ein Fehler auftritt
      */
     protected void attachLockToCurrentSession(Node node) throws RepositoryException {
-        if(node.isLocked()) {
+        if (node.isLocked()) {
             LockManager lockManager = node.getSession().getWorkspace().getLockManager();
             Lock lock = lockManager.getLock(node.getPath());
-            if (lock.getLockOwner().equals(node.getSession().getUserID())) {
+            if (lock.getLockOwner().equals(node.getSession().getUserID()) && !lock.isLockOwningSession()) {
                 //Add LockToken to current session
                 lockManager.unlock(lock.getNode().getPath());
-                lockManager.lock(lock.getNode().getPath(),lock.isDeep(),lock.isSessionScoped(),lock.getSecondsRemaining(),lock.getLockOwner());
+                lockManager.lock(lock.getNode().getPath(), lock.isDeep(), lock.isSessionScoped(), lock.getSecondsRemaining(), lock.getLockOwner());
             }
         }
     }

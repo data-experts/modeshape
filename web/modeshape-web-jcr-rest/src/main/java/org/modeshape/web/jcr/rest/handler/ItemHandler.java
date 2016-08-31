@@ -15,18 +15,13 @@
  */
 package org.modeshape.web.jcr.rest.handler;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.modeshape.common.annotation.Immutable;
+import org.modeshape.common.util.Base64;
+import org.modeshape.jcr.api.JcrConstants;
+import org.modeshape.web.jcr.rest.RestHelper;
 
 import javax.jcr.Binary;
 import javax.jcr.Item;
@@ -44,14 +39,18 @@ import javax.jcr.version.VersionManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
-
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.modeshape.common.annotation.Immutable;
-import org.modeshape.common.util.Base64;
-import org.modeshape.jcr.api.JcrConstants;
-import org.modeshape.web.jcr.rest.RestHelper;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Resource handler that implements REST methods for items.
@@ -321,6 +320,7 @@ public abstract class ItemHandler extends AbstractHandler {
         String propertyName = property.getName();
         String jsonPropertyName = jsonItem.has(propertyName) ? propertyName : propertyName + BASE64_ENCODING_SUFFIX;
         Node node = property.getParent();
+        attachLockToCurrentSession(node);
         setPropertyOnNode(node, jsonPropertyName, jsonItem.get(jsonPropertyName));
         return property;
     }

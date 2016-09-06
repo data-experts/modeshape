@@ -321,7 +321,7 @@ public abstract class AbstractHandler {
      * @param node Node die ggf. gesperrt ist
      * @throws RepositoryException wenn bei der Übernahme ein Fehler auftritt
      */
-    protected void attachLockToCurrentSession(Node node) throws RepositoryException {
+    public static void attachLockToCurrentSession(Node node) throws RepositoryException {
         if (node.isLocked()) {
             LockManager lockManager = node.getSession().getWorkspace().getLockManager();
             Lock lock = lockManager.getLock(node.getPath());

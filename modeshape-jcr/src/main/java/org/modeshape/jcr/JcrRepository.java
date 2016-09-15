@@ -15,52 +15,6 @@
  */
 package org.modeshape.jcr;
 
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.security.AccessControlContext;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.regex.Matcher;
-import java.util.stream.Collectors;
-import javax.jcr.AccessDeniedException;
-import javax.jcr.Credentials;
-import javax.jcr.LoginException;
-import javax.jcr.NoSuchWorkspaceException;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.NoInitialContextException;
-import javax.naming.OperationNotSupportedException;
-import javax.security.auth.login.LoginContext;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
 import org.jgroups.Channel;
 import org.modeshape.common.annotation.Immutable;
 import org.modeshape.common.collection.Problems;
@@ -128,6 +82,53 @@ import org.modeshape.schematic.document.Changes;
 import org.modeshape.schematic.document.Editor;
 import org.modeshape.schematic.document.Path;
 import org.modeshape.schematic.internal.document.Paths;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.Credentials;
+import javax.jcr.LoginException;
+import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.naming.NoInitialContextException;
+import javax.naming.OperationNotSupportedException;
+import javax.security.auth.login.LoginContext;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.security.AccessControlContext;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -459,7 +460,7 @@ public class JcrRepository implements org.modeshape.jcr.api.Repository {
         return runningState().repositoryKey();
     }
 
-    protected final JcrRepository.RunningState runningState() {
+    public final JcrRepository.RunningState runningState() {
         RunningState running = runningState.get();
         if (running == null) {
             throw new IllegalStateException(JcrI18n.repositoryIsNotRunningOrHasBeenShutDown.text(repositoryName()));
@@ -484,7 +485,7 @@ public class JcrRepository implements org.modeshape.jcr.api.Repository {
         return runningState().txnManager();
     }
 
-    protected final void prepareToRestore() throws RepositoryException {
+    public final void prepareToRestore() throws RepositoryException {
         logger.debug("Preparing to restore '{0}' repository; setting state to RESTORING", getName());
         if (getState() == State.RESTORING) {
             throw new RepositoryException(JcrI18n.repositoryIsCurrentlyBeingRestored.text(getName()));
@@ -512,7 +513,7 @@ public class JcrRepository implements org.modeshape.jcr.api.Repository {
         return runningState().mimeTypeDetector() != NullMimeTypeDetector.INSTANCE;
     }
 
-    protected final void completeRestore(RestoreOptions options) throws ExecutionException, Exception {
+    public final void completeRestore(RestoreOptions options) throws ExecutionException, Exception {
         if (getState() == State.RESTORING) {
             logger.debug("Shutting down '{0}' after content has been restored", getName());
             doShutdown(false);
@@ -884,7 +885,7 @@ public class JcrRepository implements org.modeshape.jcr.api.Repository {
     }
 
     @Immutable
-    protected class RunningState {
+    public class RunningState {
 
         private final RepositoryConfiguration config;
         private final DocumentStore documentStore;
@@ -1849,13 +1850,13 @@ public class JcrRepository implements org.modeshape.jcr.api.Repository {
             }
         }
 
-        boolean suspendExistingUserTransaction() throws SystemException {
+        public boolean suspendExistingUserTransaction() throws SystemException {
             // suspend any potential existing transaction, so that the initialization is "atomic"
             this.existingUserTransaction = this.transactions.suspend();
             return this.existingUserTransaction != null;
         }
 
-        void resumeExistingUserTransaction() throws SystemException {
+        public void resumeExistingUserTransaction() throws SystemException {
             if (transactions != null && existingUserTransaction != null) {
                 transactions.resume(existingUserTransaction);
                 existingUserTransaction = null;

@@ -296,7 +296,7 @@ public class JcrRepository implements org.modeshape.jcr.api.Repository {
      *
      * @throws Exception if there is a problem with underlying resource setup
      */
-    void start() throws Exception {
+    public void start() throws Exception {
         doStart();
     }
 
@@ -386,7 +386,7 @@ public class JcrRepository implements org.modeshape.jcr.api.Repository {
         }
     }
 
-    protected final boolean doShutdown(boolean rollback) {
+    public final boolean doShutdown(boolean rollback) {
         if (this.state.get() == State.NOT_RUNNING) return true;
         try {
             stateLock.lock();

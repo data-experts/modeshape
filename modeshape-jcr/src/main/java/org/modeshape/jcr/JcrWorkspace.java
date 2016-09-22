@@ -15,33 +15,6 @@
  */
 package org.modeshape.jcr;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.AccessControlException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Future;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.jcr.AccessDeniedException;
-import javax.jcr.InvalidItemStateException;
-import javax.jcr.InvalidSerializedDataException;
-import javax.jcr.ItemExistsException;
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.NoSuchWorkspaceException;
-import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.UnsupportedRepositoryOperationException;
-import javax.jcr.Workspace;
-import javax.jcr.lock.LockException;
-import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.observation.ObservationManager;
-import javax.jcr.version.Version;
-import javax.jcr.version.VersionException;
 import org.modeshape.common.annotation.ThreadSafe;
 import org.modeshape.common.util.CheckArg;
 import org.modeshape.jcr.JcrContentHandler.EnclosingSAXException;
@@ -65,12 +38,40 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import javax.jcr.AccessDeniedException;
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.InvalidSerializedDataException;
+import javax.jcr.ItemExistsException;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.Workspace;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.observation.ObservationManager;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.AccessControlException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * The ModeShape implementation of the {@link Workspace JCR Workspace}. This implementation is pretty lightweight, and only
  * instantiates the various components when needed.
  */
 @ThreadSafe
-class JcrWorkspace implements org.modeshape.jcr.api.Workspace {
+public class JcrWorkspace implements org.modeshape.jcr.api.Workspace {
 
     private final JcrSession session;
     private final String workspaceName;

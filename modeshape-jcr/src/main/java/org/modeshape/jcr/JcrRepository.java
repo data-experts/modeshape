@@ -437,7 +437,7 @@ public class JcrRepository implements org.modeshape.jcr.api.Repository {
         return runningState().nodeTypeManager();
     }
 
-    protected final RepositoryQueryManager queryManager() {
+    public final RepositoryQueryManager queryManager() {
         return runningState().queryManager();
     }
 

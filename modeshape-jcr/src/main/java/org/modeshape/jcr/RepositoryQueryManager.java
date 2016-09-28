@@ -15,22 +15,6 @@
  */
 package org.modeshape.jcr;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.jcr.RepositoryException;
 import org.modeshape.common.annotation.GuardedBy;
 import org.modeshape.common.logging.Logger;
 import org.modeshape.common.util.CheckArg;
@@ -71,10 +55,27 @@ import org.modeshape.jcr.spi.index.provider.ManagedIndex;
 import org.modeshape.jcr.value.Path;
 import org.modeshape.jcr.value.Path.Segment;
 
+import javax.jcr.RepositoryException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * The query manager a the repository. Each instance lazily starts up the {@link QueryEngine}, which can be expensive.
  */
-class RepositoryQueryManager implements ChangeSetListener {
+public class RepositoryQueryManager implements ChangeSetListener {
 
     private final Logger logger = Logger.getLogger(getClass());
     private final Logger indexLogger = Logger.getLogger(getClass().getPackage().getName() + ".index");

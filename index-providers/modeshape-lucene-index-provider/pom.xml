@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-index-providers</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <!-- The groupId and version values are inherited from parent -->
@@ -27,7 +27,7 @@
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
         </dependency>
-        <!-- 
+        <!--
             Required to text FTS on binary properties...
         -->
         <dependency>
@@ -35,5 +35,5 @@
             <artifactId>modeshape-extractor-tika</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>      
+    </dependencies>
 </project>

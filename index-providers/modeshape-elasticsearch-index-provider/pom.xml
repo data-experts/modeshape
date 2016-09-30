@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-index-providers</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <!-- The groupId and version values are inherited from parent -->
@@ -18,15 +18,15 @@
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
             <scope>test</scope>
-        </dependency>  
+        </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <scope>test</scope>
-        </dependency>                
+        </dependency>
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-schematic</artifactId>
         </dependency>
-    </dependencies>      
+    </dependencies>
 </project>

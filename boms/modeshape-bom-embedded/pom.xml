@@ -4,7 +4,7 @@
 
     <groupId>org.modeshape.bom</groupId>
     <artifactId>modeshape-bom-embedded</artifactId>
-    <version>5.0.0.5-deg-SNAPSHOT</version>
+    <version>5.0.0.5-deg</version>
 
     <name>ModeShape BOM for embedded usage</name>
 
@@ -177,7 +177,7 @@
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-schematic</artifactId>
                 <version>${project.version}</version>
-            </dependency>  
+            </dependency>
             <dependency>
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-persistence-relational</artifactId>
@@ -253,7 +253,7 @@
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-extractor-tika</artifactId>
                 <version>${project.version}</version>
-            </dependency> 
+            </dependency>
             <dependency>
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-lucene-index-provider</artifactId>
@@ -314,8 +314,8 @@
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
-            
-            <!-- 
+
+            <!--
                 Used by logging (optional)
             -->
             <dependency>
@@ -337,7 +337,7 @@
                 <optional>true</optional>
             </dependency>
 
-            <!-- 
+            <!--
                 Cache used by modeshape-jcr
             -->
             <dependency>
@@ -346,7 +346,7 @@
                 <version>${version.com.googlecode.concurrentlinkedhashmap}</version>
             </dependency>
 
-            <!-- 
+            <!--
                 Used by the relational persistence provider
             -->
             <dependency>
@@ -377,9 +377,9 @@
                 <artifactId>jboss-transaction-api_1.1_spec</artifactId>
                 <version>${version.org.jboss.spec.javax.transaction.jboss-transaction-api_1.1_spec}</version>
             </dependency>
-            
+
             <!--
-                JGroups is used for the changes bus, but it's optional. 
+                JGroups is used for the changes bus, but it's optional.
              -->
             <dependency>
                 <groupId>org.jgroups</groupId>
@@ -388,7 +388,7 @@
             </dependency>
 
 
-            
+
             <!--
                 Optional dependencies for modeshape-jcr which are present here so that clients of the BOM use the same version
                 of those dependencies, in case certain features are used.
@@ -637,8 +637,8 @@
                 <version>${version.com.datastax.cassandra}</version>
                 <scope>provided</scope>
             </dependency>
-            
-            <!-- 
+
+            <!--
                 Index providers
             -->
 

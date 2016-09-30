@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../../modeshape-parent</relativePath>
     </parent>
     <artifactId>modeshape-web-explorer</artifactId>
@@ -40,23 +40,23 @@
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-web-jcr</artifactId>
-            <scope>provided</scope>		
+            <scope>provided</scope>
         </dependency>
 
-        <!-- gwt-user.jar contains old servlet classes and we need 
-             this artefact in front of it to have newer classes in the classpath 
+        <!-- gwt-user.jar contains old servlet classes and we need
+             this artefact in front of it to have newer classes in the classpath
              first
         -->
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
-            <artifactId>jboss-servlet-api_3.1_spec</artifactId>        
+            <artifactId>jboss-servlet-api_3.1_spec</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.googlecode.gwtmosaic</groupId>
             <artifactId>gwt-incubator</artifactId>
@@ -71,7 +71,7 @@
             <groupId>com.smartgwt</groupId>
             <artifactId>smartgwt-skins</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.modeshape</groupId>
 		<artifactId>modeshape-parent</artifactId>
-		<version>5.0.0.5-deg-SNAPSHOT</version>
+		<version>5.0.0.5-deg</version>
 		<relativePath>../../modeshape-parent/pom.xml</relativePath>
 	</parent>
 	<packaging>pom</packaging>
@@ -12,7 +12,7 @@
 	<name>ModeShape JBoss Deployment Components</name>
 	<url>http://www.modeshape.org</url>
 	<description>Builds the ModeShape components that can be deployed to JBoss</description>
-	
+
 	<modules>
 		<module>modeshape-jbossas-subsystem</module>
 		<module>modeshape-jbossas-web-rest-war</module>
@@ -23,7 +23,7 @@
 
 	<build>
 		<plugins>
-			<!-- 
+			<!--
 			 Makes no sense to deploy this during a release
 			-->
 			<plugin>

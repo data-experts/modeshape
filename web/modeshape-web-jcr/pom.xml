@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../../modeshape-parent</relativePath>
     </parent>
 
@@ -27,7 +27,7 @@
         </dependency>
 
         <!--
-          Java Content Repository API 
+          Java Content Repository API
         -->
         <dependency>
             <groupId>javax.jcr</groupId>

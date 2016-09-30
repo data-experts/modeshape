@@ -4,7 +4,7 @@
 
    <groupId>org.modeshape</groupId>
    <artifactId>modeshape-checkstyle</artifactId>
-   <version>5.0.0.5-deg-SNAPSHOT</version>
+   <version>5.0.0.5-deg</version>
    <name>ModeShape Checkstyle Rules</name>
    <description>Contains the definitions for the ModeShape commons code style and conventions</description>
 
@@ -35,7 +35,7 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.17</version>
             </plugin>
-            <!-- 
+            <!--
             This is not deployed into a Maven repository. It is merely installed into the local Maven repository
             during a local build.
             -->

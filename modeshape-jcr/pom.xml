@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../modeshape-parent/pom.xml</relativePath>
     </parent>
 
@@ -166,7 +166,7 @@
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
         </dependency>
-        
+
         <!--
         These following are defined as 'provided' in the parent POM, since ModeShape
         has code that is optional if these APIs are available.
@@ -252,7 +252,7 @@
             <groupId>com.atomikos</groupId>
             <artifactId>transactions-jta</artifactId>
         </dependency>
-        
+
         <!-- Cassandra binary storage -->
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
@@ -300,7 +300,7 @@
                     <include>config/db/**</include>
                 </includes>
             </testResource>
-        </testResources>        
+        </testResources>
     </build>
     <profiles>
         <profile>
@@ -320,7 +320,7 @@
                                 <property>
                                     <name>known.issues</name>
                                     <value>
-                                        <!-- 
+                                        <!--
                                         List each test method that is not passing because of known issues, where the method is
                                         of the form "package#method". One per line. For example:
                                         org.apache.jackrabbit.test.api.ShareableNodeTest#testModifyDescendantAndSave

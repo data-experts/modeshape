@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../modeshape-parent/pom.xml</relativePath>
     </parent>
 
@@ -77,7 +77,7 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-jdbc-local</artifactId>

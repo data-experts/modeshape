@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../../../modeshape-parent/pom.xml</relativePath>
     </parent>
     <!-- The groupId and version values are inherited from parent -->
@@ -12,7 +12,7 @@
     <name>ModeShape for JBoss AS</name>
     <description>ModeShape deployment as a subsystem within the JBoss Application Server</description>
     <url>http://www.modeshape.org</url>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.modeshape</groupId>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-schematic</artifactId>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-persistence-relational</artifactId>
@@ -44,7 +44,7 @@
             <artifactId>jboss-logging</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
@@ -82,7 +82,7 @@
             <artifactId>picketbox-bare</artifactId>
             <scope>provided</scope>
         </dependency>
-      
+
         <!--Testing-->
         <dependency>
             <groupId>log4j</groupId>
@@ -109,7 +109,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- 
+            <!--
               Makes no sense to deploy this during a release
             -->
             <plugin>

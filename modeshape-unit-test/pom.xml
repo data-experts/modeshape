@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../modeshape-parent/pom.xml</relativePath>
     </parent>
 
@@ -51,7 +51,7 @@
             <scope>compile</scope>
             <type>test-jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-schematic</artifactId>
@@ -59,7 +59,7 @@
             <type>test-jar</type>
             <scope>compile</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

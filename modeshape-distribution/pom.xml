@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../modeshape-parent/pom.xml</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-schematic</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-persistence-relational</artifactId>
@@ -40,7 +40,7 @@
             <artifactId>modeshape-persistence-file</artifactId>
         </dependency>
 
-        <!-- 
+        <!--
         Both 'modeshape-jcr' and 'modeshape-extractor-tika' depend on Tika, but have different transitive dependencies
         (due to exclusions). Therefore, depend on this directly to pull in all transitive dependencies defined in the parent POM.
         And do this before 'modeshape-jcr' pulls in only a subset.
@@ -84,7 +84,7 @@
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-msoffice</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-sequencer-text</artifactId>
@@ -129,7 +129,7 @@
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-elasticsearch-index-provider</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-extractor-tika</artifactId>
@@ -155,18 +155,18 @@
             <build>
                 <plugins>
                     <plugin>
-                        <!-- 
+                        <!--
                         We're building JavaDoc in one pass, using dependencies of this module, versus building aggregates
                         that involve forking a full JavaDoc build of all modules within this module. One pass is not only
                         a lot faster, but it also is compatible with Mead builds for productization. The only issue is
                         that some 'provided' dependencies need to be hacked (see above).
                         -->
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${version.javadoc.plugin}</version>                         
+                        <version>${version.javadoc.plugin}</version>
                         <configuration>
                             <!-- JDK 8 turn off doclint -->
                             <additionalparam>-Xdoclint:none</additionalparam>
-                            <!-- 
+                            <!--
                                 Maven JavaDoc doesn't handle provided dependencies so all these have to be explicitly added
                             -->
                             <additionalDependencies>
@@ -347,7 +347,7 @@
                                     </descriptorRefs>
                                     <descriptors>
                                         <descriptor>src/assembly/javadoc.xml</descriptor>
-                                    </descriptors>                                    
+                                    </descriptors>
                                 </configuration>
                             </execution>
                             <!--
@@ -376,7 +376,7 @@
         </profile>
         <profile>
             <!--
-              This profile is enabled by default and only builds the distributions required 
+              This profile is enabled by default and only builds the distributions required
               by the integration tests.
             -->
             <id>integration</id>

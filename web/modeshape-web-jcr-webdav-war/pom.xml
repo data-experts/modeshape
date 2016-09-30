@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../../modeshape-parent</relativePath>
     </parent>
     <artifactId>modeshape-web-jcr-webdav-war</artifactId>
@@ -18,7 +18,7 @@
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-web-jcr-webdav</artifactId>
         </dependency>
-        
+
         <!-- H2 is the default DB -->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -41,7 +41,7 @@
             <artifactId>log4j</artifactId>
             <scope>runtime</scope>
         </dependency>
-      
+
         <!--  TESTING DEPENDENCIES -->
         <dependency>
             <groupId>org.modeshape</groupId>

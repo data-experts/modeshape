@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../modeshape-parent/pom.xml</relativePath>
     </parent>
     <!-- The groupId and version values are inherited from parent -->
@@ -23,8 +23,8 @@
         <dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-jcr-api</artifactId>
-        </dependency>  
-		
+        </dependency>
+
 		<dependency>
             <groupId>org.modeshape</groupId>
             <artifactId>modeshape-jcr</artifactId>
@@ -83,8 +83,8 @@
     </dependencies>
 
     <modules>
-        <module>modeshape-lucene-index-provider</module>      
-        <module>modeshape-elasticsearch-index-provider</module>      
+        <module>modeshape-lucene-index-provider</module>
+        <module>modeshape-elasticsearch-index-provider</module>
     </modules>
 
     <profiles>

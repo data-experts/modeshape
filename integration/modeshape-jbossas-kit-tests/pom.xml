@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../../modeshape-parent/pom.xml</relativePath>
     </parent>
     <!-- The groupId and version values are inherited from parent  -->
@@ -75,8 +75,8 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <scope>test</scope>
-        </dependency>     
-        
+        </dependency>
+
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
@@ -209,7 +209,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- 
+            <!--
                Use the JBOSS AS plugin to fire up the server and run the CLI scripts which install the ModeShape DV kit
            -->
             <plugin>
@@ -246,9 +246,9 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- 
+            <!--
              Makes no sense to deploy this during a release
-            -->  
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>

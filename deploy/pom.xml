@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.modeshape</groupId>
     <artifactId>modeshape-parent</artifactId>
-    <version>5.0.0.5-deg-SNAPSHOT</version>
+    <version>5.0.0.5-deg</version>
     <relativePath>../modeshape-parent</relativePath>
   </parent>
 
@@ -16,7 +16,7 @@
 
   <build>
     <plugins>
-      <!-- 
+      <!--
        Makes no sense to deploy this during a release
       -->
       <plugin>
@@ -28,7 +28,7 @@
       </plugin>
     </plugins>
   </build>
-  
+
   <modules>
     <module>jbossas</module>
   </modules>

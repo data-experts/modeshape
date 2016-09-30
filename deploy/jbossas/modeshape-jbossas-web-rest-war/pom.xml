@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.modeshape</groupId>
         <artifactId>modeshape-parent</artifactId>
-        <version>5.0.0.5-deg-SNAPSHOT</version>
+        <version>5.0.0.5-deg</version>
         <relativePath>../../../modeshape-parent/pom.xml</relativePath>
     </parent>
     <artifactId>modeshape-jbossas-web-rest-war</artifactId>
@@ -70,7 +70,7 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-            <!-- 
+            <!--
              Makes no sense to deploy this during a release
             -->
             <plugin>

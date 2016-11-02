@@ -218,8 +218,8 @@
         <!-- ***************** -->
         <!-- Repository Deployment URLs -->
         <!-- ***************** -->
-        <jboss.releases.repo.url>http://nexus.data-experts.de:8081/nexus/content/repositories/portal/</jboss.releases.repo.url>
-        <jboss.snapshots.repo.url>http://nexus.data-experts.de:8081/nexus/content/repositories/portal-snapshot/</jboss.snapshots.repo.url>
+        <jboss.releases.repo.url>http://nexus3.nlberlin.deg.local:8081/repository/maven-releases/</jboss.releases.repo.url>
+        <jboss.snapshots.repo.url>http://nexus3.nlberlin.deg.local:8081/repository/maven-snapshots/</jboss.snapshots.repo.url>
 
     </properties>
 
@@ -1977,17 +1977,15 @@
         </plugins>
     </reporting>
 
-    <distributionManagement>
-        <repository>
-            <id>jboss-releases-repository</id>
-            <name>JBoss Releases Repository</name>
-            <url>${jboss.releases.repo.url}</url>
-        </repository>
-        <snapshotRepository>
-            <id>jboss-snapshots-repository</id>
-            <name>JBoss Snapshots Repository</name>
-            <url>${jboss.snapshots.repo.url}</url>
+	<distributionManagement>
+		<repository>
+			<id>deg-releases</id>
+			<url>http://nexus3.nlberlin.deg.local:8081/repository/maven-releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>deg-snapshots</id>
+            <url>http://nexus3.nlberlin.deg.local:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
-    </distributionManagement>
+	</distributionManagement>
 
 </project>

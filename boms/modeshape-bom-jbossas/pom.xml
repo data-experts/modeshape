@@ -50,8 +50,8 @@
         <!-- ***************** -->
         <!-- Repository Deployment URLs -->
         <!-- ***************** -->
-        <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
-        <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
+        <jboss.releases.repo.url>http://nexus3.nlberlin.deg.local:8081/repository/maven-releases/</jboss.releases.repo.url>
+        <jboss.snapshots.repo.url>http://nexus3.nlberlin.deg.local:8081/repository/maven-snapshots/</jboss.snapshots.repo.url>
 
         <version.javax.jcr>2.0</version.javax.jcr>
         <version.org.wildfly>10.0.0.Final</version.org.wildfly>
@@ -160,12 +160,12 @@
 
     <distributionManagement>
       <repository>
-        <id>jboss-releases-repository</id>
+        <id>deg-releases</id>
         <name>JBoss Releases Repository</name>
         <url>${jboss.releases.repo.url}</url>
       </repository>
       <snapshotRepository>
-        <id>jboss-snapshots-repository</id>
+        <id>deg-snapshots</id>
         <name>JBoss Snapshots Repository</name>
         <url>${jboss.snapshots.repo.url}</url>
       </snapshotRepository>

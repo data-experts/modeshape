@@ -22,11 +22,15 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.servlet.http.HttpServletRequest;
+
 import org.modeshape.common.text.UrlEncoder;
+import org.modeshape.jcr.api.Logger;
 import org.modeshape.jcr.api.ValueFactory;
+import org.modeshape.web.jcr.WebLogger;
 
 /**
  * Utility class for the rest services and supporting classes.

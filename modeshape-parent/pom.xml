@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.modeshape</groupId>
     <artifactId>modeshape-parent</artifactId>
-    <version>5.3.0.Final</version>
+    <version>5.3.0.0-deg-SNAPSHOT</version>
     <name>ModeShape Parent</name>
 
     <url>http://www.modeshape.org</url>
@@ -41,6 +41,17 @@
         <system>jira</system>
         <url>http://issues.jboss.org/browse/MODE</url>
     </issueManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>deg-releases</id>
+            <url>http://nexus3.nlberlin.deg.local:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>deg-snapshots</id>
+            <url>http://nexus3.nlberlin.deg.local:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <developers>
         <developer>
@@ -84,14 +95,14 @@
             <timezone>+4</timezone>
         </developer>
     </developers>
-    
+
     <properties>
 
         <!-- Used to define the JCR Descriptor value -->
         <jcr.repository.vendor>${project.organization.name}</jcr.repository.vendor>
         <jcr.repository.vendor.url>http://www.modeshape.org</jcr.repository.vendor.url>
         <jcr.repository.name>ModeShape</jcr.repository.name>
-        
+
         <!--
               These are properties used in the database profiles. Must initialize
               them to be empty so that Maven applies them via filtering to the
@@ -128,13 +139,13 @@
         <version.com.atomikos>3.8.0</version.com.atomikos>
         <version.org.picketbox>4.9.6.Final</version.org.picketbox>
         <version.com.zaxxer.HikariCP>2.4.3</version.com.zaxxer.HikariCP>
-        
+
         <version.org.jboss.spec.javax.transaction.jboss-transaction-api_1.2_spec>1.0.1.Final</version.org.jboss.spec.javax.transaction.jboss-transaction-api_1.2_spec>
         <version.com.github.ben-manes.caffeine>2.3.3</version.com.github.ben-manes.caffeine>
         <!--Make sure the jgroups version is the same as the one used by ISPN -->
         <version.org.jgroups>3.6.8.Final</version.org.jgroups>
         <jgroups.module.slot>main</jgroups.module.slot>
-        
+
         <version.org.jboss.logging>3.3.0.Final</version.org.jboss.logging>
         <version.org.jboss.spec.javax.servlet.jboss-servlet-api_3.1_spec>1.0.0.Final</version.org.jboss.spec.javax.servlet.jboss-servlet-api_3.1_spec>
         <version.org.jboss.spec.javax.security.jacc>1.0.0.Final</version.org.jboss.spec.javax.security.jacc>
@@ -169,7 +180,7 @@
         <version.org.eclipse.emf.ecore>2.4.2</version.org.eclipse.emf.ecore>
         <version.org.eclipse.emf.ecore-change>2.2.3</version.org.eclipse.emf.ecore-change>
         <version.org.eclipse.emf.ecore-xmi>2.4.1</version.org.eclipse.emf.ecore-xmi>
-        <!-- nightmare end -->        
+        <!-- nightmare end -->
         <version.org.apache.tika>1.14</version.org.apache.tika>
         <version.com.drewnoakes.metadata-extractor>2.6.2</version.com.drewnoakes.metadata-extractor>
         <version.org.apache.lucene>6.0.0</version.org.apache.lucene>
@@ -185,7 +196,7 @@
         <version.com.datastax.cassandra>2.0.0-rc2</version.com.datastax.cassandra>
         <version.org.apache.cassandra>2.0.3</version.org.apache.cassandra>
         <version.org.apache.pdfbox>2.0.3</version.org.apache.pdfbox>
-        
+
         <version.com.h2>1.4.191</version.com.h2>
         <version.postgresql.9>9.2-1002.jdbc4</version.postgresql.9>
         <version.mysql>5.1.39</version.mysql>
@@ -195,14 +206,14 @@
         <version.docker.postgresql>9.5.4</version.docker.postgresql>
         <version.docker.mysql>5.7</version.docker.mysql>
         <version.docker.oracle>16.04</version.docker.oracle>
-              
+
         <!--Properties which must be used when installing locally a server ZIP distribution -->
         <version.org.wildfly>10.0.0.Final</version.org.wildfly>
         <version.org.wildfly.core>2.0.10.Final</version.org.wildfly.core>
 
         <!-- The id of the maven distribution which is building the current wf kit -->
         <wf.dist.id>jboss-wf-dist</wf.dist.id>
-        
+
         <!--The name of binary distribution -->
         <binary.dist.name>binary-dist</binary.dist.name>
 
@@ -516,10 +527,10 @@
                                         <goals>
                                             <goal>copy-dependencies</goal>
                                             <goal>unpack</goal>
-                                         </goals>
+                                        </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -536,7 +547,7 @@
                     <artifactId>wildfly-maven-plugin</artifactId>
                     <version>${version.org.wildfly.plugings.wildfly-maven-plugin}</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
@@ -612,7 +623,7 @@
                                     </log>
                                     <wait>
                                         <log>/usr/sbin/startup.sh: ignoring /docker-entrypoint-initdb.d/*</log>
-                                        <time>300000</time> 
+                                        <time>300000</time>
                                     </wait>
                                 </run>
                             </image>
@@ -653,10 +664,10 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
-                    <id>attach-sources</id>
-                    <goals>
-                        <goal>jar-no-fork</goal>
-                    </goals>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -750,26 +761,26 @@
                         <groupId>org.modeshape</groupId>
                         <artifactId>modeshape-checkstyle</artifactId>
                         <version>${project.version}</version>
-                     </dependency>
+                    </dependency>
                 </dependencies>
                 <configuration>
-                   <configLocation>checkstyle.xml</configLocation>
-                   <consoleOutput>true</consoleOutput>
-                   <failsOnError>true</failsOnError>
-                   <linkXRef>false</linkXRef>
-                   <violationSeverity>error</violationSeverity>
-                   <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <linkXRef>false</linkXRef>
+                    <violationSeverity>error</violationSeverity>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
                 <executions>
-                   <execution>
-                      <id>check-style</id>
-                      <phase>process-test-classes</phase>
-                      <goals>
-                         <goal>checkstyle</goal>
-                      </goals>
-                   </execution>
+                    <execution>
+                        <id>check-style</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
                 </executions>
-             </plugin>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -1011,7 +1022,7 @@
                 <artifactId>modeshape-jca</artifactId>
                 <version>${project.version}</version>
             </dependency>
-           <dependency>
+            <dependency>
                 <groupId>org.modeshape</groupId>
                 <artifactId>modeshape-jbossas-subsystem</artifactId>
                 <version>${project.version}</version>
@@ -1103,13 +1114,13 @@
                 <artifactId>caffeine</artifactId>
                 <version>${version.com.github.ben-manes.caffeine}</version>
             </dependency>
-          
+
             <dependency>
                 <groupId>org.jboss.spec.javax.transaction</groupId>
                 <artifactId>jboss-transaction-api_1.2_spec</artifactId>
                 <version>${version.org.jboss.spec.javax.transaction.jboss-transaction-api_1.2_spec}</version>
             </dependency>
-            
+
             <!-- 
                 Used by ModeShape's persistence providers...            
             -->
@@ -1158,7 +1169,7 @@
                 <artifactId>jgroups</artifactId>
                 <version>${version.org.jgroups}</version>
             </dependency>
-            
+
             <!-- Heap and file-based maps -->
             <dependency>
                 <groupId>org.mapdb</groupId>
@@ -1234,7 +1245,7 @@
                 <artifactId>chemistry-opencmis-server-support</artifactId>
                 <version>${version.org.apache.chemistry.opencmis}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.chemistry.opencmis</groupId>
                 <artifactId>chemistry-opencmis-server-jcr</artifactId>
@@ -1246,18 +1257,18 @@
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.chemistry.opencmis</groupId>
-                        <artifactId>chemistry-opencmis-server-bindings-war</artifactId> 
+                        <artifactId>chemistry-opencmis-server-bindings-war</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
-           
+
             <dependency>
                 <groupId>org.apache.chemistry.opencmis</groupId>
-                <artifactId>chemistry-opencmis-server-bindings-war</artifactId>                
+                <artifactId>chemistry-opencmis-server-bindings-war</artifactId>
                 <version>${version.org.apache.chemistry.opencmis}</version>
                 <type>war</type>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.chemistry.opencmis</groupId>
                 <artifactId>chemistry-opencmis-client-bindings</artifactId>
@@ -1318,7 +1329,7 @@
                 <artifactId>commons-fileupload</artifactId>
                 <version>${version.commons-fileupload}</version>
             </dependency>
-            
+
             <!-- Java Content Repository API -->
             <dependency>
                 <groupId>javax.jcr</groupId>
@@ -1385,7 +1396,7 @@
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-analyzers-common</artifactId>
                 <version>${version.org.apache.lucene}</version>
-            </dependency> 
+            </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-queryparser</artifactId>
@@ -1659,16 +1670,16 @@
                         <artifactId>xml-apis</artifactId>
                     </exclusion>
                 </exclusions>
-             </dependency>
-             <dependency>
+            </dependency>
+            <dependency>
                 <groupId>org.odftoolkit</groupId>
                 <artifactId>simple-odf</artifactId>
-                 <exclusions>
-                     <exclusion>
-                         <groupId>xml-apis</groupId>
-                         <artifactId>xml-apis</artifactId>
-                     </exclusion>
-                 </exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                </exclusions>
                 <version>${version.org.odftoolkit.simple-odf}</version>
             </dependency>
 
@@ -1892,7 +1903,7 @@
                 <version>${version.org.jboss.jbossts.jta}</version>
                 <scope>test</scope>
             </dependency>
-          
+
             <!--
                 JBOSS AS subsystem
             -->
@@ -2056,17 +2067,17 @@
             </dependency>
 
             <dependency>
-               <groupId>org.elasticsearch</groupId>
-               <artifactId>elasticsearch</artifactId>
-               <version>${version.org.elasticsearch}</version>
-               <scope>test</scope>
-            </dependency>            
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${version.org.elasticsearch}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
                 <artifactId>jna</artifactId>
                 <version>${version.jna}</version>
                 <scope>test</scope>
-            </dependency>                
+            </dependency>
 
             <!--Test dependency which allows custom JNDI bindings-->
             <dependency>

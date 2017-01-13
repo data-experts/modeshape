@@ -68,7 +68,7 @@ public class JcrBlob implements Blob {
             byte[] data = new byte[length];
             int numRead = 0;
             try {
-                numRead = binary.read(data, pos);
+                numRead = binary.read(data, pos-1);
             } finally {
                 binary.dispose();
             }

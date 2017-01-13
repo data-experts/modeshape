@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PropertyType;
@@ -35,6 +36,7 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
+
 import org.modeshape.jcr.api.query.QueryResult;
 import org.modeshape.jdbc.JcrType;
 import org.modeshape.jdbc.JdbcJcrValueFactory;
@@ -49,7 +51,9 @@ import org.modeshape.jdbc.rest.ModeShapeRestClient;
 public final class HttpQueryResult implements QueryResult {
 
     protected final List<HttpRow> rows = new ArrayList<>();
+
     protected final Map<String, String> columnTypesByName = new LinkedHashMap<>();
+
     private final ModeShapeRestClient restClient;
 
     protected HttpQueryResult(org.modeshape.jdbc.rest.QueryResult queryResult, ModeShapeRestClient restClient) {
@@ -113,6 +117,7 @@ public final class HttpQueryResult implements QueryResult {
     private class HttpRowIterator implements RowIterator {
 
         private static final int EMPTY_CURSOR = -1;
+
         private int cursor = rows.isEmpty() ? EMPTY_CURSOR : 0;
 
         protected HttpRowIterator() {
@@ -167,6 +172,7 @@ public final class HttpQueryResult implements QueryResult {
     private class HttpRow implements Row {
 
         private final Map<String, Value> valuesMap = new LinkedHashMap<>();
+
         private final ModeShapeRestClient restClient;
 
         protected HttpRow(org.modeshape.jdbc.rest.QueryResult.Row row, ModeShapeRestClient restClient) {
@@ -174,11 +180,13 @@ public final class HttpQueryResult implements QueryResult {
             this.restClient = restClient;
             for (Map.Entry<String, String> column : columnTypesByName.entrySet()) {
                 Object queryRowValue = row.getValue(column.getKey());
-                if (column.getValue().equalsIgnoreCase(JcrType.DefaultDataTypes.BINARY) || (queryRowValue != null && queryRowValue.toString().startsWith(restClient.serverUrl()))) {
+                if (column.getValue().equalsIgnoreCase(JcrType.DefaultDataTypes.BINARY) || (queryRowValue != null && queryRowValue.toString().startsWith(restClient.serverUrl()+"/binary"))) {
                     class Binary implements javax.jcr.Value, javax.jcr.Binary {
 
                         private final ModeShapeRestClient restClient;
+
                         private byte[] data;
+
                         private final String uri;
 
                         public Binary(ModeShapeRestClient restClient, String uri) {

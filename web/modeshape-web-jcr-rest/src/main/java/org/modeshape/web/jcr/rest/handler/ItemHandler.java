@@ -194,6 +194,7 @@ public abstract class ItemHandler extends AbstractHandler {
      */
     protected void setPropertyOnNode(Node node, String propName, Object value) throws RepositoryException, JSONException {
         // Are the property values encoded ?
+        attachLockToCurrentSession(node);
         boolean encoded = propName.endsWith(BASE64_ENCODING_SUFFIX);
         if (encoded) {
             int newLength = propName.length() - BASE64_ENCODING_SUFFIX.length();

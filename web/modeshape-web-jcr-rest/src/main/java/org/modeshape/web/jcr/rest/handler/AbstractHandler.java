@@ -323,7 +323,7 @@ public abstract class AbstractHandler {
      */
     public static void attachLockToCurrentSession(Node node) throws RepositoryException {
         LockManager lockManager = node.getSession().getWorkspace().getLockManager();
-        if (lockManager.holdsLock(node.getPath())) {
+        if (lockManager.holdsLock(node.getPath()) || lockManager.isLocked(node.getPath())) {
             Lock lock = lockManager.getLock(node.getPath());
             if (lock.getLockOwner().equals(node.getSession().getUserID()) && !lock.isLockOwningSession()) {
                 //Add LockToken to current session

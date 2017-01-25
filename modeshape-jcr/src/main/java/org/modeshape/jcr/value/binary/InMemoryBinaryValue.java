@@ -36,7 +36,7 @@ public class InMemoryBinaryValue extends AbstractBinary {
 
     private transient final BinaryStore store;
     private final byte[] bytes;
-    private transient String mimeType;
+    private String mimeType;
 
     public InMemoryBinaryValue( BinaryStore store,
                                 byte[] bytes ) {
@@ -66,7 +66,7 @@ public class InMemoryBinaryValue extends AbstractBinary {
 
     @Override
     public String getMimeType() throws IOException, RepositoryException {
-        if (mimeType == null) {
+        if (mimeType == null && store!=null) {
             mimeType = store.getMimeType(this, null);
         }
         return mimeType;
@@ -74,7 +74,7 @@ public class InMemoryBinaryValue extends AbstractBinary {
 
     @Override
     public String getMimeType( String name ) throws IOException, RepositoryException {
-        if (mimeType == null) {
+        if (mimeType == null && store!=null) {
             mimeType = store.getMimeType(this, name);
         }
         return mimeType;

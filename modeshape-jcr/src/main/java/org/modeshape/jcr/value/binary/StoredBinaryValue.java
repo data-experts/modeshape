@@ -32,7 +32,7 @@ public class StoredBinaryValue extends AbstractBinary {
 
     private final transient BinaryStore store;
     private final long size;
-    private transient String mimeType;
+    private String mimeType;
 
     public StoredBinaryValue( BinaryStore store,
                               BinaryKey key,
@@ -51,7 +51,7 @@ public class StoredBinaryValue extends AbstractBinary {
 
     @Override
     public String getMimeType() throws IOException, RepositoryException {
-        if (mimeType == null) {
+        if (mimeType == null && store!=null) {
             mimeType = store.getMimeType(this, null);
         }
         return mimeType;
@@ -59,7 +59,7 @@ public class StoredBinaryValue extends AbstractBinary {
 
     @Override
     public String getMimeType( String name ) throws IOException, RepositoryException {
-        if (mimeType == null) {
+        if (mimeType == null && store!=null) {
             mimeType = store.getMimeType(this, name);
         }
         return mimeType;

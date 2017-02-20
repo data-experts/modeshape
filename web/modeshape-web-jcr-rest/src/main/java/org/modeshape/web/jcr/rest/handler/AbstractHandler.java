@@ -327,8 +327,12 @@ public abstract class AbstractHandler {
             Lock lock = lockManager.getLock(node.getPath());
             if (lock.getLockOwner().equals(node.getSession().getUserID()) && !lock.isLockOwningSession()) {
                 //Add LockToken to current session
+                boolean deep = lock.isDeep();
+                boolean sessionScoped = lock.isSessionScoped();
+                long secondsRemaining = lock.getSecondsRemaining();
+                String lockOwner = lock.getLockOwner();
                 lockManager.unlock(lock.getNode().getPath());
-                lockManager.lock(lock.getNode().getPath(), lock.isDeep(), lock.isSessionScoped(), lock.getSecondsRemaining(), lock.getLockOwner());
+                lockManager.lock(lock.getNode().getPath(), deep, sessionScoped, secondsRemaining, lockOwner);
             }
         }
     }

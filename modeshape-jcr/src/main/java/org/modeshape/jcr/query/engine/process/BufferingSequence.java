@@ -17,6 +17,7 @@ package org.modeshape.jcr.query.engine.process;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.mapdb.BTreeKeySerializer;
 import org.mapdb.Serializer;
 import org.modeshape.common.logging.Logger;
@@ -38,26 +39,27 @@ import org.modeshape.jcr.query.model.TypeSystem.TypeFactory;
 public abstract class BufferingSequence extends DelegatingSequence {
 
     protected static final Logger logger = Logger.getLogger(BufferingSequence.class);
+
     protected static final boolean trace = logger.isTraceEnabled();
 
     protected final SortingBuffer<Object, BufferedRow> buffer;
+
     protected final BufferedRowFactory<? extends BufferedRow> rowFactory;
+
     protected final ExtractFromRow extractor;
+
     protected final CachedNodeSupplier cache;
+
     protected final int width;
+
     protected final String workspaceName;
+
     protected final AtomicLong remainingRowCount = new AtomicLong();
+
     protected final AtomicLong rowsLeftInBatch = new AtomicLong();
 
-    @SuppressWarnings( "unchecked" )
-    protected BufferingSequence( String workspaceName,
-                                 NodeSequence delegate,
-                                 ExtractFromRow extractor,
-                                 BufferManager bufferMgr,
-                                 CachedNodeSupplier nodeCache,
-                                 boolean pack,
-                                 boolean useHeap,
-                                 boolean allowDuplicates ) {
+    @SuppressWarnings("unchecked")
+    protected BufferingSequence(String workspaceName, NodeSequence delegate, ExtractFromRow extractor, BufferManager bufferMgr, CachedNodeSupplier nodeCache, boolean pack, boolean useHeap, boolean allowDuplicates) {
         super(delegate);
         assert extractor != null;
         this.workspaceName = workspaceName;
@@ -72,19 +74,14 @@ public abstract class BufferingSequence extends DelegatingSequence {
         SortingBuffer<Object, BufferedRow> buffer = null;
         TypeFactory<?> keyType = extractor.getType();
         if (allowDuplicates) {
-            @SuppressWarnings( "rawtypes" )
-            Serializer<? extends Comparable> keySerializer = (Serializer<? extends Comparable<?>>)bufferMgr.serializerFor(keyType);
-            buffer = bufferMgr.createSortingWithDuplicatesBuffer(keySerializer, extractor.getType().getComparator(),
-                                                                 (BufferedRowFactory<BufferedRow>)rowFactory).keepSize(true)
-                              .useHeap(useHeap).make();
+            @SuppressWarnings("rawtypes") Serializer<? extends Comparable> keySerializer = (Serializer<? extends Comparable<?>>) bufferMgr.serializerFor(keyType);
+            buffer = bufferMgr.createSortingWithDuplicatesBuffer(keySerializer, extractor.getType().getComparator(), (BufferedRowFactory<BufferedRow>) rowFactory).keepSize(true).useHeap(useHeap).make();
         } else {
-            BTreeKeySerializer<Object> keySerializer = (BTreeKeySerializer<Object>)bufferMgr.bTreeKeySerializerFor(keyType, pack);
+            BTreeKeySerializer<Object> keySerializer = (BTreeKeySerializer<Object>) bufferMgr.bTreeKeySerializerFor(keyType, pack);
             if (keySerializer instanceof KeySerializerWithComparator) {
-                keySerializer = ((KeySerializerWithComparator<Object>)keySerializer).withComparator(extractor.getType()
-                                                                                                             .getComparator());
+                keySerializer = ((KeySerializerWithComparator<Object>) keySerializer).withComparator(extractor.getType().getComparator());
             }
-            buffer = bufferMgr.createSortingBuffer(keySerializer, (BufferedRowFactory<BufferedRow>)rowFactory).keepSize(true)
-                              .useHeap(useHeap).make();
+            buffer = bufferMgr.createSortingBuffer(keySerializer, (BufferedRowFactory<BufferedRow>) rowFactory).keepSize(true).useHeap(useHeap).make();
         }
         this.buffer = buffer;
     }
@@ -98,22 +95,20 @@ public abstract class BufferingSequence extends DelegatingSequence {
         return buffer.size();
     }
 
-    protected BufferedRow createRow( Batch currentRow ) {
+    protected BufferedRow createRow(Batch currentRow) {
         return rowFactory.createRow(currentRow);
     }
 
     /**
      * Load all of the rows from the supplied sequence into the buffer.
-     * 
+     *
      * @param sequence the node sequence; may not be null
      * @param extractor the extractor for the sortable value; may not be null
      * @param rowsWithNullKey the buffer into which should be placed all rows for which the extracted key value is null; may be
      *        null if these are not to be kept
      * @return the size of the first batch, or 0 if there are no rows found
      */
-    protected int loadAll( NodeSequence sequence,
-                           ExtractFromRow extractor,
-                           DistinctBuffer<BufferedRow> rowsWithNullKey ) {
+    protected int loadAll(NodeSequence sequence, ExtractFromRow extractor, DistinctBuffer<BufferedRow> rowsWithNullKey) {
         // Put all of the batches from the sequence into the buffer
         Batch batch = sequence.nextBatch();
         int batchSize = 0;
@@ -125,7 +120,7 @@ public abstract class BufferingSequence extends DelegatingSequence {
                 value = extractor.getValueInRow(batch);
                 if (value instanceof Object[]) {
                     // Put each of the values in the buffer ...
-                    for (Object v : (Object[])value) {
+                    for (Object v : (Object[]) value) {
                         buffer.put(v, createRow(batch));
                     }
                 } else if (value != null) {
@@ -134,20 +129,21 @@ public abstract class BufferingSequence extends DelegatingSequence {
                     rowsWithNullKey.addIfAbsent(createRow(batch));
                 }
                 if (!firstBatchCounted) {
-                    ++batchSize;    
+                    ++batchSize;
                 }
             }
-            firstBatchCounted = true;
+            firstBatchCounted = batchSize != 0;
             batch = sequence.nextBatch();
         }
-       
+
         return batchSize;
     }
 
-    protected Batch batchFrom( final Iterator<BufferedRow> rows,
-                               final long maxBatchSize ) {
-        if (rows == null || !rows.hasNext()) return null;
-        if (maxBatchSize == 0 || remainingRowCount.get() <= 0) return NodeSequence.emptyBatch(workspaceName, this.width);
+    protected Batch batchFrom(final Iterator<BufferedRow> rows, final long maxBatchSize) {
+        if (rows == null || !rows.hasNext())
+            return null;
+        if (maxBatchSize == 0 || remainingRowCount.get() <= 0)
+            return NodeSequence.emptyBatch(workspaceName, this.width);
         final long rowsInBatch = Math.min(maxBatchSize, remainingRowCount.get());
         rowsLeftInBatch.set(rowsInBatch);
         return new Batch() {
@@ -191,7 +187,7 @@ public abstract class BufferingSequence extends DelegatingSequence {
             }
 
             @Override
-            public CachedNode getNode( int index ) {
+            public CachedNode getNode(int index) {
                 return current.getNode(index);
             }
 
@@ -201,7 +197,7 @@ public abstract class BufferingSequence extends DelegatingSequence {
             }
 
             @Override
-            public float getScore( int index ) {
+            public float getScore(int index) {
                 return current.getScore(index);
             }
 

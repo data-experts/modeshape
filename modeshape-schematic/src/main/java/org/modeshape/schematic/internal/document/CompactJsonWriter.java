@@ -15,17 +15,6 @@
  */
 package org.modeshape.schematic.internal.document;
 
-import static org.modeshape.schematic.document.Json.ReservedField.BASE_64;
-import static org.modeshape.schematic.document.Json.ReservedField.BINARY_TYPE;
-import static org.modeshape.schematic.document.Json.ReservedField.CODE;
-import static org.modeshape.schematic.document.Json.ReservedField.DATE;
-import static org.modeshape.schematic.document.Json.ReservedField.INCREMENT;
-import static org.modeshape.schematic.document.Json.ReservedField.OBJECT_ID;
-import static org.modeshape.schematic.document.Json.ReservedField.REGEX_OPTIONS;
-import static org.modeshape.schematic.document.Json.ReservedField.REGEX_PATTERN;
-import static org.modeshape.schematic.document.Json.ReservedField.SCOPE;
-import static org.modeshape.schematic.document.Json.ReservedField.TIMESTAMP;
-import static org.modeshape.schematic.document.Json.ReservedField.UUID;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -39,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
 import org.modeshape.schematic.document.Binary;
 import org.modeshape.schematic.document.Bson;
 import org.modeshape.schematic.document.Code;
@@ -52,73 +42,82 @@ import org.modeshape.schematic.document.ObjectId;
 import org.modeshape.schematic.document.Symbol;
 import org.modeshape.schematic.document.Timestamp;
 
+import static org.modeshape.schematic.document.Json.ReservedField.BASE_64;
+import static org.modeshape.schematic.document.Json.ReservedField.BINARY_TYPE;
+import static org.modeshape.schematic.document.Json.ReservedField.CODE;
+import static org.modeshape.schematic.document.Json.ReservedField.DATE;
+import static org.modeshape.schematic.document.Json.ReservedField.INCREMENT;
+import static org.modeshape.schematic.document.Json.ReservedField.OBJECT_ID;
+import static org.modeshape.schematic.document.Json.ReservedField.REGEX_OPTIONS;
+import static org.modeshape.schematic.document.Json.ReservedField.REGEX_PATTERN;
+import static org.modeshape.schematic.document.Json.ReservedField.SCOPE;
+import static org.modeshape.schematic.document.Json.ReservedField.TIMESTAMP;
+import static org.modeshape.schematic.document.Json.ReservedField.UUID;
+
 public class CompactJsonWriter implements JsonWriter {
 
     @Override
-    public void write( Object object,
-                       OutputStream stream ) throws IOException {
+    public void write(Object object, OutputStream stream) throws IOException {
         Writer writer = new BufferedWriter(new OutputStreamWriter(stream, Json.UTF8));
         write(object, writer);
         writer.flush();
     }
 
     @Override
-    public void write( Object object,
-                       Writer writer ) throws IOException {
+    public void write(Object object, Writer writer) throws IOException {
         if (object == null) {
             writeNull(writer);
         } else if (object instanceof String) {
-            write((String)object, writer);
+            write((String) object, writer);
         } else if (object instanceof Boolean) {
-            write(((Boolean)object).booleanValue(), writer);
+            write(((Boolean) object).booleanValue(), writer);
         } else if (object instanceof Integer) {
-            write(((Integer)object).intValue(), writer);
+            write(((Integer) object).intValue(), writer);
         } else if (object instanceof Long) {
-            write(((Long)object).longValue(), writer);
+            write(((Long) object).longValue(), writer);
         } else if (object instanceof Float) {
-            write(((Float)object).floatValue(), writer);
+            write(((Float) object).floatValue(), writer);
         } else if (object instanceof Double) {
-            write(((Double)object).doubleValue(), writer);
+            write(((Double) object).doubleValue(), writer);
         } else if (object.getClass().isArray()) {
             writeArray(object, writer);
         } else if (object instanceof ArrayEditor) {
-            write((Iterable<?>)((ArrayEditor)object).unwrap(), writer);
+            write((Iterable<?>) ((ArrayEditor) object).unwrap(), writer);
         } else if (object instanceof DocumentEditor) {
-            write(((DocumentEditor)object).unwrap(), writer);
+            write(((DocumentEditor) object).unwrap(), writer);
         } else if (object instanceof Iterable) { // must check before 'BsonObject' because of inheritance
-            write((Iterable<?>)object, writer);
+            write((Iterable<?>) object, writer);
         } else if (object instanceof Map) {
-            write((Document)object, writer);
+            write((Document) object, writer);
         } else if (object instanceof Binary) {
-            write((Binary)object, writer);
+            write((Binary) object, writer);
         } else if (object instanceof Symbol) {
-            write((Symbol)object, writer);
+            write((Symbol) object, writer);
         } else if (object instanceof Pattern) {
-            write((Pattern)object, writer);
+            write((Pattern) object, writer);
         } else if (object instanceof Date) {
-            write((Date)object, writer);
+            write((Date) object, writer);
         } else if (object instanceof UUID) {
-            write((UUID)object, writer);
+            write((UUID) object, writer);
         } else if (object instanceof CodeWithScope) { // must check before 'Code' because of inheritance
-            write((CodeWithScope)object, writer);
+            write((CodeWithScope) object, writer);
         } else if (object instanceof Code) {
-            write((Code)object, writer);
+            write((Code) object, writer);
         } else if (object instanceof Timestamp) {
-            write((Timestamp)object, writer);
+            write((Timestamp) object, writer);
         } else if (object instanceof Field) {
-            write((Field)object, writer);
+            write((Field) object, writer);
         } else if (object instanceof ObjectId) {
-            write((ObjectId)object, writer);
+            write((ObjectId) object, writer);
         } else if (object instanceof MaxKey) {
-            write((MaxKey)object, writer);
+            write((MaxKey) object, writer);
         } else if (object instanceof MinKey) {
-            write((MinKey)object, writer);
+            write((MinKey) object, writer);
         }
     }
 
     @Override
-    public void write( Object object,
-                       StringBuilder writer ) {
+    public void write(Object object, StringBuilder writer) {
         try {
             write(object, new StringBuilderWriter(writer));
         } catch (IOException e) {
@@ -127,43 +126,37 @@ public class CompactJsonWriter implements JsonWriter {
     }
 
     @Override
-    public String write( Object object ) {
+    public String write(Object object) {
         StringBuilder sb = new StringBuilder();
         write(object, sb);
         return sb.toString();
     }
 
-    protected void write( boolean value,
-                          Writer writer ) throws IOException {
+    protected void write(boolean value, Writer writer) throws IOException {
         writer.append(Boolean.toString(value));
     }
 
-    protected void write( int value,
-                          Writer writer ) throws IOException {
+    protected void write(int value, Writer writer) throws IOException {
         writer.append(Integer.toString(value));
     }
 
-    protected void write( long value,
-                          Writer writer ) throws IOException {
+    protected void write(long value, Writer writer) throws IOException {
         writer.append(Long.toString(value));
     }
 
-    protected void write( float value,
-                          Writer writer ) throws IOException {
+    protected void write(float value, Writer writer) throws IOException {
         writer.append(Float.toString(value));
     }
 
-    protected void write( double value,
-                          Writer writer ) throws IOException {
+    protected void write(double value, Writer writer) throws IOException {
         writer.append(Double.toString(value));
     }
 
-    protected void writeNull( Writer writer ) throws IOException {
+    protected void writeNull(Writer writer) throws IOException {
         writer.append("null");
     }
 
-    protected void write( String value,
-                          Writer writer ) throws IOException {
+    protected void write(String value, Writer writer) throws IOException {
         // We need to escape certain characters found within the string ...
         writer.append('"');
         CharacterIterator iter = new StringCharacterIterator(value);
@@ -219,39 +212,32 @@ public class CompactJsonWriter implements JsonWriter {
         writer.append('"');
     }
 
-    protected void write( Symbol value,
-                          Writer writer ) throws IOException {
+    protected void write(Symbol value, Writer writer) throws IOException {
         writer.append('"').append(value.getSymbol()).append('"');
     }
 
-    protected void write( ObjectId value,
-                          Writer writer ) throws IOException {
+    protected void write(ObjectId value, Writer writer) throws IOException {
         write(new BasicDocument(OBJECT_ID, value.getBytesInBase16()), writer);
     }
 
-    protected void write( Date value,
-                          Writer writer ) throws IOException {
+    protected void write(Date value, Writer writer) throws IOException {
         String isoDate = Bson.getDateFormatter().format(value);
         write(new BasicDocument(DATE, isoDate), writer);
     }
 
-    protected void write( Timestamp value,
-                          Writer writer ) throws IOException {
+    protected void write(Timestamp value, Writer writer) throws IOException {
         write(new BasicDocument(TIMESTAMP, value.getTime(), INCREMENT, value.getInc()), writer);
     }
 
-    protected void write( MinKey value,
-                          Writer writer ) throws IOException {
+    protected void write(MinKey value, Writer writer) throws IOException {
         write("MinKey", writer);
     }
 
-    protected void write( MaxKey value,
-                          Writer writer ) throws IOException {
+    protected void write(MaxKey value, Writer writer) throws IOException {
         write("MaxKey", writer);
     }
 
-    protected void write( Pattern value,
-                          Writer writer ) throws IOException {
+    protected void write(Pattern value, Writer writer) throws IOException {
         BasicDocument obj = new BasicDocument(REGEX_PATTERN, value.pattern());
         String options = BsonUtils.regexFlagsFor(value);
         if (options.length() != 0) {
@@ -260,36 +246,31 @@ public class CompactJsonWriter implements JsonWriter {
         write(obj, writer);
     }
 
-    protected void write( Binary value,
-                          Writer writer ) throws IOException {
+    protected void write(Binary value, Writer writer) throws IOException {
         int type = value.getType() - 0;
         String base64 = value.getBytesInBase64();
         write(new BasicDocument(BINARY_TYPE, type, BASE_64, base64), writer);
     }
 
-    protected void write( UUID value,
-                          Writer writer ) throws IOException {
+    protected void write(UUID value, Writer writer) throws IOException {
         write(new BasicDocument(UUID, value.toString()), writer);
     }
 
-    protected void write( Code value,
-                          Writer writer ) throws IOException {
+    protected void write(Code value, Writer writer) throws IOException {
         write(new BasicDocument(CODE, value.getCode()), writer);
     }
 
-    protected void write( CodeWithScope value,
-                          Writer writer ) throws IOException {
+    protected void write(CodeWithScope value, Writer writer) throws IOException {
         write(new BasicDocument(CODE, value.getCode(), SCOPE, value.getScope()), writer);
     }
 
-    protected void write( Field field,
-                          Writer writer ) throws IOException {
-        writer.append('"').append(field.getName()).append('"').append(' ').append(':').append(' ');
+    protected void write(Field field, Writer writer) throws IOException {
+        write(field.getName(), writer);
+        writer.append(' ').append(':').append(' ');
         write(field.getValue(), writer);
     }
 
-    protected void write( Document bson,
-                          Writer writer ) throws IOException {
+    protected void write(Document bson, Writer writer) throws IOException {
         writer.append('{').append(' ');
         Iterator<Field> iter = bson.fields().iterator();
         if (iter.hasNext()) {
@@ -304,8 +285,7 @@ public class CompactJsonWriter implements JsonWriter {
         writer.append('}');
     }
 
-    protected void write( Iterable<?> arrayValue,
-                          Writer writer ) throws IOException {
+    protected void write(Iterable<?> arrayValue, Writer writer) throws IOException {
         writer.append('[');
         Iterator<?> iter = arrayValue.iterator();
         if (iter.hasNext()) {
@@ -319,8 +299,7 @@ public class CompactJsonWriter implements JsonWriter {
         writer.append(' ').append(']');
     }
 
-    protected void writeArray( Object array,
-                               Writer writer ) throws IOException {
+    protected void writeArray(Object array, Writer writer) throws IOException {
         // Could transform this into a List, but this is more efficient ...
         writer.append('[');
         for (int i = 0, len = Array.getLength(array); i < len; i++) {
@@ -336,56 +315,50 @@ public class CompactJsonWriter implements JsonWriter {
 
         private final StringBuilder builder;
 
-        public StringBuilderWriter( final StringBuilder builder ) {
+        public StringBuilderWriter(final StringBuilder builder) {
             this.builder = builder;
         }
 
         @Override
-        public void write( final char[] cbuf,
-                           final int off,
-                           final int len ) {
+        public void write(final char[] cbuf, final int off, final int len) {
             builder.append(cbuf, off, len);
         }
 
         @Override
-        public Writer append( char c ) {
+        public Writer append(char c) {
             builder.append(c);
             return this;
         }
 
         @Override
-        public Writer append( CharSequence csq ) {
+        public Writer append(CharSequence csq) {
             builder.append(csq);
             return this;
         }
 
         @Override
-        public Writer append( CharSequence csq,
-                              int start,
-                              int end ) {
+        public Writer append(CharSequence csq, int start, int end) {
             builder.append(csq, start, end);
             return this;
         }
 
         @Override
-        public void write( final int c ) {
+        public void write(final int c) {
             builder.append(c);
         }
 
         @Override
-        public void write( final char[] cbuf ) {
+        public void write(final char[] cbuf) {
             builder.append(cbuf);
         }
 
         @Override
-        public void write( final String str ) {
+        public void write(final String str) {
             builder.append(str);
         }
 
         @Override
-        public void write( final String str,
-                           final int off,
-                           final int len ) {
+        public void write(final String str, final int off, final int len) {
             builder.append(str, off, len);
         }
 

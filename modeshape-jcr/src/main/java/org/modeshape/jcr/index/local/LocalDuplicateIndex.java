@@ -93,8 +93,9 @@ final class LocalDuplicateIndex<T> extends LocalMapIndex<UniqueKey<T>, T> {
                      String propertyName,
                      T value ) {
         logger.trace("Adding node '{0}' to '{1}' index with value '{2}'", nodeKey, name, value);
-        keysByValue.put(new UniqueKey<T>(value, counter.getAndIncrement()), nodeKey);
+        long counterValue = counter.getAndIncrement();
         saveOptions();
+        keysByValue.put(new UniqueKey<T>(value, counterValue), nodeKey);
     }
 
     @Override

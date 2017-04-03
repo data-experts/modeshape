@@ -77,22 +77,29 @@ final class LocalDuplicateIndex<T> extends LocalMapIndex<UniqueKey<T>, T> {
 
     @Override
     public void shutdown( boolean destroyed ) {
-        // Store the value of the next counter in the options map ...
-        options.put(NEXT_COUNTER, counter.get());
+        saveOptions();
         super.shutdown(destroyed);
+    }
+
+    /**
+     * Store the value of the next counter in the options map ...
+     */
+    private void saveOptions() {
+        options.put(NEXT_COUNTER, counter.get());
     }
 
     @Override
     public void add( String nodeKey,
-                     String propertyName, 
+                     String propertyName,
                      T value ) {
         logger.trace("Adding node '{0}' to '{1}' index with value '{2}'", nodeKey, name, value);
         keysByValue.put(new UniqueKey<T>(value, counter.getAndIncrement()), nodeKey);
+        saveOptions();
     }
 
     @Override
     public void remove( String nodeKey,
-                        String propertyName, 
+                        String propertyName,
                         T value ) {
         // Find all of the T values (entry keys) for the given node key (entry values) and remove those which have value 'value'
         for (UniqueKey<T> key : Fun.filter(valuesByKey, nodeKey)) {

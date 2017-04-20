@@ -20,13 +20,16 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
+
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+
+import com.zaxxer.hikari.HikariDataSource;
+
 import org.modeshape.common.database.DatabaseType;
 import org.modeshape.common.database.DatabaseUtil;
 import org.modeshape.common.logging.Logger;
-import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * Class which handles the configuration and actual database discovery for a {@link RelationalDb}
@@ -42,7 +45,8 @@ public final class DataSourceManager {
                                                                                DatabaseType.Name.MYSQL,
                                                                                DatabaseType.Name.POSTGRES,
                                                                                DatabaseType.Name.ORACLE,
-                                                                               DatabaseType.Name.SQLSERVER);
+                                                                               DatabaseType.Name.SQLSERVER,
+                                                                               DatabaseType.Name.DB2);
 
     private final DataSource dataSource;
     private final DatabaseType dbType;

@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.modeshape.common.database.DatabaseType;
 import org.modeshape.common.logging.Logger;
 import org.modeshape.common.util.StringUtil;
@@ -42,18 +43,22 @@ import org.modeshape.schematic.document.EditableDocument;
 
 /**
  * {@link SchematicDb} implementation which stores data in Relational databases.
- * 
+ *
  * @author Horia Chiorean (hchiorea@redhat.com)
  * @since 5.0
  */
-public class RelationalDb implements SchematicDb {  
-    
+public class RelationalDb implements SchematicDb {
+
     private static final Logger LOGGER = Logger.getLogger(RelationalDb.class);
 
     private final ConcurrentMap<String, Connection> connectionsByTxId;
+
     private final DataSourceManager dsManager;
+
     private final RelationalDbConfig config;
+
     private final Statements statements;
+
     private final TransactionalCaches transactionalCaches;
 
     protected RelationalDb(Document configDoc) {
@@ -66,6 +71,10 @@ public class RelationalDb implements SchematicDb {
         switch (dbType.name()) {
             case ORACLE: {
                 this.statements = new OracleStatements(config, statementsFile);
+                break;
+            }
+            case DB2: {
+                this.statements = new DB2Statements(config, statementsFile);
                 break;
             }
             default: {
@@ -91,10 +100,10 @@ public class RelationalDb implements SchematicDb {
     public void stop() {
         // remove the active tx Id
         TransactionsHolder.clearActiveTransaction();
-        
+
         // cleanup any possible active connections....
         cleanupConnections();
-       
+
         // drop the table if configured to do so 
         if (config.dropOnExit()) {
             runWithConnection(statements::dropTable, false);
@@ -102,7 +111,7 @@ public class RelationalDb implements SchematicDb {
 
         // and release any idle connections
         dsManager.close();
-        
+
         // and clear the caches
         transactionalCaches.stop();
     }
@@ -132,7 +141,7 @@ public class RelationalDb implements SchematicDb {
     public List<String> keys() {
         //first read everything from the db
         List<String> persistedKeys = runWithConnection(statements::getAllIds, true);
-      
+
         if (!TransactionsHolder.hasActiveTransaction()) {
             // there is no active tx for just return the persistent view
             return persistedKeys;
@@ -141,14 +150,14 @@ public class RelationalDb implements SchematicDb {
         persistedKeys.addAll(transactionalCaches.documentKeys());
         return persistedKeys.stream().filter(id -> !transactionalCaches.isRemoved(id)).collect(Collectors.toList());
     }
-    
+
     @Override
     public Document get(String key) {
         if (!TransactionsHolder.hasActiveTransaction()) {
             // there is no active tx, so use a local read-only connection
             return runWithConnection(connection -> statements.getById(connection, key), true);
         }
-       
+
         // there is an active transaction so: 
         // search for the document in the cache
         Document cachedDocument = transactionalCaches.search(key);
@@ -188,7 +197,7 @@ public class RelationalDb implements SchematicDb {
                 }
             }
         }
-        
+
         List<String> keysList = new ArrayList<>(keys);
 
         Function<Document, SchematicEntry> documentParser = document -> {
@@ -209,7 +218,7 @@ public class RelationalDb implements SchematicDb {
     }
 
     @Override
-    public boolean lockForWriting( List<String> locks ) {
+    public boolean lockForWriting(List<String> locks) {
         if (locks.isEmpty()) {
             return false;
         }
@@ -239,7 +248,7 @@ public class RelationalDb implements SchematicDb {
             // it's the first time we're editing this document as part of this tx so store this document for writing...
             entryDocument = transactionalCaches.putForWriting(key, entry.source());
         }
-        return SchematicEntry.content(entryDocument).editable(); 
+        return SchematicEntry.content(entryDocument).editable();
     }
 
     @Override
@@ -321,14 +330,12 @@ public class RelationalDb implements SchematicDb {
 
     private Void persistContent(Connection tlConnection) throws SQLException {
         ConcurrentMap<String, Document> writeCache = transactionalCaches.writeCache();
-        logDebug("Committing the active connection for transaction {0} with the changes: {1}",
-                 TransactionsHolder.requireActiveTransaction(),
-                 writeCache);
+        logDebug("Committing the active connection for transaction {0} with the changes: {1}", TransactionsHolder.requireActiveTransaction(), writeCache);
         Statements.BatchUpdate batchUpdate = statements.batchUpdate(tlConnection);
         Map<String, Document> toInsert = new HashMap<>();
         Map<String, Document> toUpdate = new HashMap<>();
         List<String> toRemove = new ArrayList<>();
-        writeCache.forEach(( key, document ) -> {
+        writeCache.forEach((key, document) -> {
             if (TransactionalCaches.REMOVED == document) {
                 toRemove.add(key);
             } else if (transactionalCaches.hasBeenRead(key)) {
@@ -357,15 +364,15 @@ public class RelationalDb implements SchematicDb {
         try {
             runWithConnection(this::rollback, false);
         } finally {
-           cleanupTransaction(id);
-        } 
+            cleanupTransaction(id);
+        }
     }
-    
+
     private Void rollback(Connection connection) throws SQLException {
         connection.rollback();
         return null;
     }
-    
+
     protected <R> R runWithConnection(SQLFunction<R> function, boolean readonly) {
         try {
             if (TransactionsHolder.hasActiveTransaction()) {
@@ -384,48 +391,42 @@ public class RelationalDb implements SchematicDb {
     }
 
     protected Connection connectionForActiveTx() {
-        return connectionsByTxId.computeIfAbsent(TransactionsHolder.requireActiveTransaction(),
-                                                 transactionId -> dsManager.newConnection(false, false));
+        return connectionsByTxId.computeIfAbsent(TransactionsHolder.requireActiveTransaction(), transactionId -> dsManager.newConnection(false, false));
     }
-    
+
     protected RelationalDbConfig config() {
         return config;
     }
-    
+
     protected DataSourceManager dsManager() {
         return dsManager;
     }
-    
+
     protected void releaseConnectionForActiveTx() {
-        connectionsByTxId.computeIfPresent(TransactionsHolder.requireActiveTransaction(),
-                                              (txId, connection) -> {
-                                                  closeConnection(connection);
-                                                  return null;
-                                              });
+        connectionsByTxId.computeIfPresent(TransactionsHolder.requireActiveTransaction(), (txId, connection) -> {
+            closeConnection(connection);
+            return null;
+        });
     }
 
     protected Connection newConnection(boolean autoCommit, boolean readonly) {
         return dsManager.newConnection(autoCommit, readonly);
     }
-  
+
     private Map<String, String> loadStatementsResource() {
         try (InputStream fileStream = loadStatementsFile(dsManager.dbType())) {
             Properties statements = new Properties();
             statements.load(fileStream);
-            return statements.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().toString(),
-                                                                           entry -> {
-                                                                               String value = entry.getValue().toString();
-                                                                               return !value.contains("{0}") ?
-                                                                                      value :
-                                                                                      StringUtil.createString(value,
-                                                                                                              config.tableName());
-                                                                           }));
+            return statements.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().toString(), entry -> {
+                String value = entry.getValue().toString();
+                return !value.contains("{0}") ? value : StringUtil.createString(value, config.tableName());
+            }));
         } catch (IOException e) {
             throw new RelationalProviderException(e);
         }
     }
-    
-    private InputStream loadStatementsFile( DatabaseType dbType ) {
+
+    private InputStream loadStatementsFile(DatabaseType dbType) {
         String filePrefix = RelationalDb.class.getPackage().getName().replaceAll("\\.", "/") + "/" + dbType.nameString().toLowerCase();
         // first search for a file matching the major.minor version....
         String majorMinorFile = filePrefix + String.format("_%s.%s_database.properties", dbType.majorVersion(), dbType.minorVersion());
@@ -433,21 +434,17 @@ public class RelationalDb implements SchematicDb {
         String majorFile = filePrefix + String.format("_%s_database.properties", dbType.majorVersion());
         // the a default with just the db name
         String defaultFile = filePrefix + "_database.properties";
-        return Stream.of(majorMinorFile, majorFile, defaultFile)
-                     .map(fileName -> {
-                         InputStream is = RelationalDb.class.getClassLoader().getResourceAsStream(fileName);
-                         if (LOGGER.isDebugEnabled()) {
-                             if (is != null) {
-                                 LOGGER.debug("located DB statemtents file '{0}'", fileName);
-                             } else {
-                                 LOGGER.debug("'{0}' statements file not found", fileName);
-                             }
-                         }
-                         return is;
-                     })
-                     .filter(Objects::nonNull)
-                     .findFirst()
-                     .orElseThrow(() -> new RelationalProviderException(RelationalProviderI18n.unsupportedDBError, dbType));
+        return Stream.of(majorMinorFile, majorFile, defaultFile).map(fileName -> {
+            InputStream is = RelationalDb.class.getClassLoader().getResourceAsStream(fileName);
+            if (LOGGER.isDebugEnabled()) {
+                if (is != null) {
+                    LOGGER.debug("located DB statemtents file '{0}'", fileName);
+                } else {
+                    LOGGER.debug("'{0}' statements file not found", fileName);
+                }
+            }
+            return is;
+        }).filter(Objects::nonNull).findFirst().orElseThrow(() -> new RelationalProviderException(RelationalProviderI18n.unsupportedDBError, dbType));
     }
 
     @Override
@@ -455,14 +452,14 @@ public class RelationalDb implements SchematicDb {
         return "RelationalDB[" + config.toString() + "]";
     }
 
-    private void logDebug(String message, Object...args) {
+    private void logDebug(String message, Object... args) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(message, args);
         }
     }
 
     @FunctionalInterface
-    private interface SQLFunction<R>  {
+    private interface SQLFunction<R> {
         R execute(Connection connection) throws SQLException;
     }
 }

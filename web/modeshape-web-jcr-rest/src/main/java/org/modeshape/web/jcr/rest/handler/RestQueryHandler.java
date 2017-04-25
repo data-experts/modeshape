@@ -51,7 +51,9 @@ import org.modeshape.web.jcr.rest.model.RestQueryResult;
 public final class RestQueryHandler extends AbstractHandler {
 
     private static final String MODE_URI = "mode:uri";
+
     private static final String UNKNOWN_TYPE = "unknown-type";
+
     private static final List<String> SKIP_QUERY_PARAMETERS = Arrays.asList("offset", "limit");
 
     /**
@@ -71,14 +73,7 @@ public final class RestQueryHandler extends AbstractHandler {
      * @return a {@link RestQueryHandler} instance
      * @throws RepositoryException if any operation fails at the JCR level
      */
-    public RestQueryResult executeQuery( HttpServletRequest request,
-                                         String repositoryName,
-                                         String workspaceName,
-                                         String language,
-                                         String statement,
-                                         long offset,
-                                         long limit,
-                                         UriInfo uriInfo ) throws RepositoryException {
+    public RestQueryResult executeQuery(HttpServletRequest request, String repositoryName, String workspaceName, String language, String statement, long offset, long limit, UriInfo uriInfo) throws RepositoryException {
         assert repositoryName != null;
         assert workspaceName != null;
         assert language != null;
@@ -118,14 +113,7 @@ public final class RestQueryHandler extends AbstractHandler {
      * @return a response containing the string representation of the query plan
      * @throws RepositoryException if any operation fails at the JCR level
      */
-    public RestQueryPlanResult planQuery( HttpServletRequest request,
-                                          String repositoryName,
-                                          String workspaceName,
-                                          String language,
-                                          String statement,
-                                          long offset,
-                                          long limit,
-                                          UriInfo uriInfo ) throws RepositoryException {
+    public RestQueryPlanResult planQuery(HttpServletRequest request, String repositoryName, String workspaceName, String language, String statement, long offset, long limit, UriInfo uriInfo) throws RepositoryException {
         assert repositoryName != null;
         assert workspaceName != null;
         assert language != null;
@@ -140,13 +128,7 @@ public final class RestQueryHandler extends AbstractHandler {
         return new RestQueryPlanResult(plan, statement, language, query.getAbstractQueryModelRepresentation());
     }
 
-    private void setRows( long offset,
-                          long limit,
-                          Session session,
-                          QueryResult result,
-                          RestQueryResult restQueryResult,
-                          String[] columnNames,
-                          String baseUrl ) throws RepositoryException {
+    private void setRows(long offset, long limit, Session session, QueryResult result, RestQueryResult restQueryResult, String[] columnNames, String baseUrl) throws RepositoryException {
         RowIterator resultRows = result.getRows();
         if (offset > 0) {
             resultRows.skip(offset);
@@ -166,10 +148,7 @@ public final class RestQueryHandler extends AbstractHandler {
         }
     }
 
-    private void createLinksFromNodePaths( QueryResult result,
-                                           String baseUrl,
-                                           Row resultRow,
-                                           RestQueryResult.RestRow restRow ) throws RepositoryException {
+    private void createLinksFromNodePaths(QueryResult result, String baseUrl, Row resultRow, RestQueryResult.RestRow restRow) throws RepositoryException {
         if (result.getSelectorNames().length == 1) {
             String defaultPath = encodedPath(resultRow.getPath());
             if (!StringUtil.isBlank(defaultPath)) {
@@ -179,8 +158,7 @@ public final class RestQueryHandler extends AbstractHandler {
             for (String selectorName : result.getSelectorNames()) {
                 try {
                     String selectorPath = encodedPath(resultRow.getPath(selectorName));
-                    restRow.addValue(MODE_URI + "-" + selectorName,
-                                     RestHelper.urlFrom(baseUrl, RestHelper.ITEMS_METHOD_NAME, selectorPath));
+                    restRow.addValue(MODE_URI + "-" + selectorName, RestHelper.urlFrom(baseUrl, RestHelper.ITEMS_METHOD_NAME, selectorPath));
                 } catch (RepositoryException e) {
                     logger.debug(e, e.getMessage());
                 }
@@ -188,12 +166,7 @@ public final class RestQueryHandler extends AbstractHandler {
         }
     }
 
-    private RestQueryResult.RestRow createRestRow( Session session,
-                                                   QueryResult result,
-                                                   RestQueryResult restQueryResult,
-                                                   String[] columnNames,
-                                                   String baseUrl,
-                                                   Row resultRow ) throws RepositoryException {
+    private RestQueryResult.RestRow createRestRow(Session session, QueryResult result, RestQueryResult restQueryResult, String[] columnNames, String baseUrl, Row resultRow) throws RepositoryException {
         RestQueryResult.RestRow restRow = restQueryResult.new RestRow();
         Map<Value, String> binaryPropertyPaths = null;
 
@@ -217,14 +190,17 @@ public final class RestQueryHandler extends AbstractHandler {
         return restRow;
     }
 
-    private Map<Value, String> binaryPropertyPaths( Row row,
-                                                    String[] selectorNames ) throws RepositoryException {
+    private Map<Value, String> binaryPropertyPaths(Row row, String[] selectorNames) throws RepositoryException {
         Map<Value, String> result = new HashMap<Value, String>();
-        Node node = row.getNode();
-        if (node != null) {
-            result.putAll(binaryPropertyPaths(node));
+        Node node = null;
+        try {
+            node = row.getNode();
+            if (node != null) {
+                result.putAll(binaryPropertyPaths(node));
+            }
+        } catch (RepositoryException e) {
+            //wir haben eine MultiSelectorQueryResultRow deshalb ignorieren
         }
-
         for (String selectorName : selectorNames) {
             Node selectedNode = row.getNode(selectorName);
             if (selectedNode != null && selectedNode != node) {
@@ -234,9 +210,9 @@ public final class RestQueryHandler extends AbstractHandler {
         return result;
     }
 
-    private Map<Value, String> binaryPropertyPaths( Node node ) throws RepositoryException {
+    private Map<Value, String> binaryPropertyPaths(Node node) throws RepositoryException {
         Map<Value, String> result = new HashMap<Value, String>();
-        for (PropertyIterator propertyIterator = node.getProperties(); propertyIterator.hasNext();) {
+        for (PropertyIterator propertyIterator = node.getProperties(); propertyIterator.hasNext(); ) {
             Property property = propertyIterator.nextProperty();
             if (property.getType() == PropertyType.BINARY) {
                 result.put(property.getValue(), property.getPath());
@@ -245,11 +221,9 @@ public final class RestQueryHandler extends AbstractHandler {
         return result;
     }
 
-    private void setColumns( QueryResult result,
-                             RestQueryResult restQueryResult,
-                             String[] columnNames ) {
+    private void setColumns(QueryResult result, RestQueryResult restQueryResult, String[] columnNames) {
         if (result instanceof org.modeshape.jcr.api.query.QueryResult) {
-            org.modeshape.jcr.api.query.QueryResult modeShapeQueryResult = (org.modeshape.jcr.api.query.QueryResult)result;
+            org.modeshape.jcr.api.query.QueryResult modeShapeQueryResult = (org.modeshape.jcr.api.query.QueryResult) result;
             String[] columnTypes = modeShapeQueryResult.getColumnTypes();
             for (int i = 0; i < columnNames.length; i++) {
                 restQueryResult.addColumn(columnNames[i], columnTypes[i]);
@@ -261,16 +235,12 @@ public final class RestQueryHandler extends AbstractHandler {
         }
     }
 
-    private org.modeshape.jcr.api.query.Query createQuery( String language,
-                                                           String statement,
-                                                           Session session ) throws RepositoryException {
+    private org.modeshape.jcr.api.query.Query createQuery(String language, String statement, Session session) throws RepositoryException {
         QueryManager queryManager = session.getWorkspace().getQueryManager();
-        return (org.modeshape.jcr.api.query.Query)queryManager.createQuery(statement, language);
+        return (org.modeshape.jcr.api.query.Query) queryManager.createQuery(statement, language);
     }
 
-    private void bindExtraVariables( UriInfo uriInfo,
-                                     ValueFactory valueFactory,
-                                     Query query ) throws RepositoryException {
+    private void bindExtraVariables(UriInfo uriInfo, ValueFactory valueFactory, Query query) throws RepositoryException {
         if (uriInfo == null) {
             return;
         }

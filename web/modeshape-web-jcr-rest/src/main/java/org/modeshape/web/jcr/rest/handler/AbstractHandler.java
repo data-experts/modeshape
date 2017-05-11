@@ -184,7 +184,7 @@ public abstract class AbstractHandler {
                 }
             }
         } catch (Exception e) {
-            logger.error("Cannot create JSON string from value ", e);
+            logger.error(e, "Cannot create JSON string from value ");
             return null;
         }
     }

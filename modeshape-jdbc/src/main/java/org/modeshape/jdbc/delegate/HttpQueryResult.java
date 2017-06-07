@@ -18,6 +18,7 @@ package org.modeshape.jdbc.delegate;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,6 +50,94 @@ import org.modeshape.jdbc.rest.ModeShapeRestClient;
  * @author Horia Chiorean
  */
 public final class HttpQueryResult implements QueryResult {
+
+    private static class HttpBinary implements javax.jcr.Value, javax.jcr.Binary {
+
+        private final ModeShapeRestClient restClient;
+
+        private byte[] data;
+
+        private final String uri;
+
+        public HttpBinary(ModeShapeRestClient restClient, String uri) {
+            this.restClient = restClient;
+            this.uri = uri;
+        }
+
+        private byte[] getData() {
+            if (data == null) {
+                JSONRestClient.Response doGet = restClient.getJsonRestClient().doGet(uri);
+                if (doGet.isOK()) {
+                    data = doGet.getContent();
+                }
+            }
+            return data;
+        }
+
+        @Override
+        public String getString() throws IllegalStateException {
+            try {
+                return new String(getData(), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public InputStream getStream() throws RepositoryException {
+            return new ByteArrayInputStream(getData());
+        }
+
+        @Override
+        public javax.jcr.Binary getBinary() throws RepositoryException {
+            return this;
+        }
+
+        @Override
+        public long getLong() throws ValueFormatException, RepositoryException {
+            return getData().length;
+        }
+
+        @Override
+        public double getDouble() throws ValueFormatException, RepositoryException {
+            return getLong();
+        }
+
+        @Override
+        public BigDecimal getDecimal() throws ValueFormatException, RepositoryException {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Calendar getDate() throws ValueFormatException, RepositoryException {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public boolean getBoolean() throws ValueFormatException, RepositoryException {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public int getType() {
+            return PropertyType.BINARY;
+        }
+
+        @Override
+        public int read(byte[] b, long position) throws IOException, RepositoryException {
+            return getStream().read(b, (int) position, b.length);
+        }
+
+        @Override
+        public long getSize() throws RepositoryException {
+            return getLong();
+        }
+
+        @Override
+        public void dispose() {
+            data = null;
+        }
+    }
 
     protected final List<HttpRow> rows = new ArrayList<>();
 
@@ -180,92 +269,13 @@ public final class HttpQueryResult implements QueryResult {
             this.restClient = restClient;
             for (Map.Entry<String, String> column : columnTypesByName.entrySet()) {
                 Object queryRowValue = row.getValue(column.getKey());
-                if (column.getValue().equalsIgnoreCase(JcrType.DefaultDataTypes.BINARY) || (queryRowValue != null && queryRowValue.toString().startsWith(restClient.serverUrl()+"/binary"))) {
-                    class Binary implements javax.jcr.Value, javax.jcr.Binary {
-
-                        private final ModeShapeRestClient restClient;
-
-                        private byte[] data;
-
-                        private final String uri;
-
-                        public Binary(ModeShapeRestClient restClient, String uri) {
-                            this.restClient = restClient;
-                            this.uri = uri;
-                        }
-
-                        private byte[] getData() {
-                            if (data == null) {
-                                JSONRestClient.Response doGet = restClient.getJsonRestClient().doGet(uri);
-                                if (doGet.isOK()) {
-                                    data = doGet.getContent();
-                                }
-                            }
-                            return data;
-                        }
-
-                        @Override
-                        public String getString() throws ValueFormatException, IllegalStateException, RepositoryException {
-                            return new String(getData());
-                        }
-
-                        @Override
-                        public InputStream getStream() throws RepositoryException {
-                            return new ByteArrayInputStream(getData());
-                        }
-
-                        @Override
-                        public javax.jcr.Binary getBinary() throws RepositoryException {
-                            return this;
-                        }
-
-                        @Override
-                        public long getLong() throws ValueFormatException, RepositoryException {
-                            return getData().length;
-                        }
-
-                        @Override
-                        public double getDouble() throws ValueFormatException, RepositoryException {
-                            return getLong();
-                        }
-
-                        @Override
-                        public BigDecimal getDecimal() throws ValueFormatException, RepositoryException {
-                            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                        }
-
-                        @Override
-                        public Calendar getDate() throws ValueFormatException, RepositoryException {
-                            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                        }
-
-                        @Override
-                        public boolean getBoolean() throws ValueFormatException, RepositoryException {
-                            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                        }
-
-                        @Override
-                        public int getType() {
-                            return PropertyType.BINARY;
-                        }
-
-                        @Override
-                        public int read(byte[] b, long position) throws IOException, RepositoryException {
-                            return getStream().read(b, (int) position, b.length);
-                        }
-
-                        @Override
-                        public long getSize() throws RepositoryException {
-                            return getLong();
-                        }
-
-                        @Override
-                        public void dispose() {
-                            data = null;
-                        }
-                    }
-                    valuesMap.put(column.getKey(), new Binary(this.restClient, queryRowValue.toString()));
+                if (column.getValue().equalsIgnoreCase(JcrType.DefaultDataTypes.BINARY)) {
+                    valuesMap.put(column.getKey(), new HttpBinary(this.restClient, queryRowValue.toString()));
                 } else {
+                    if (queryRowValue != null && queryRowValue.toString().startsWith(restClient.serverUrl() + "/binary")) {
+                        // Werte wurde von Modeshape als Binary ablegegt, obwohl das Feld kein Binary ist --> Daten nachladen und als neuen Wert verwenden
+                        queryRowValue = new HttpBinary(this.restClient, queryRowValue.toString()).getString();
+                    }
                     valuesMap.put(column.getKey(), JdbcJcrValueFactory.createValue(queryRowValue));
                 }
             }

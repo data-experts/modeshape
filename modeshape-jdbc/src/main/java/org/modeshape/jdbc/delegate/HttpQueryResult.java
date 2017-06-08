@@ -39,7 +39,6 @@ import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
 
 import org.modeshape.jcr.api.query.QueryResult;
-import org.modeshape.jdbc.JcrType;
 import org.modeshape.jdbc.JdbcJcrValueFactory;
 import org.modeshape.jdbc.rest.JSONRestClient;
 import org.modeshape.jdbc.rest.ModeShapeRestClient;
@@ -269,13 +268,10 @@ public final class HttpQueryResult implements QueryResult {
             this.restClient = restClient;
             for (Map.Entry<String, String> column : columnTypesByName.entrySet()) {
                 Object queryRowValue = row.getValue(column.getKey());
-                if (column.getValue().equalsIgnoreCase(JcrType.DefaultDataTypes.BINARY)) {
+                if (queryRowValue != null && queryRowValue.toString().startsWith(restClient.serverUrl() + "/binary")) {
+                    // Werte wurde von Modeshape als Binary ablegegt, obwohl das Feld kein Binary ist --> Daten nachladen und als neuen Wert verwenden
                     valuesMap.put(column.getKey(), new HttpBinary(this.restClient, queryRowValue.toString()));
                 } else {
-                    if (queryRowValue != null && queryRowValue.toString().startsWith(restClient.serverUrl() + "/binary")) {
-                        // Werte wurde von Modeshape als Binary ablegegt, obwohl das Feld kein Binary ist --> Daten nachladen und als neuen Wert verwenden
-                        queryRowValue = new HttpBinary(this.restClient, queryRowValue.toString()).getString();
-                    }
                     valuesMap.put(column.getKey(), JdbcJcrValueFactory.createValue(queryRowValue));
                 }
             }

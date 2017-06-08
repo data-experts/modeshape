@@ -30,6 +30,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -175,6 +177,7 @@ public final class RestQueryHandler extends AbstractHandler {
             if (value == null) {
                 continue;
             }
+
             String propertyPath = null;
             // because we generate links for binary properties, we need the path of the property which has the value
             if (value.getType() == PropertyType.BINARY) {
@@ -212,9 +215,16 @@ public final class RestQueryHandler extends AbstractHandler {
 
     private Map<Value, String> binaryPropertyPaths(Node node) throws RepositoryException {
         Map<Value, String> result = new HashMap<Value, String>();
+        Map<String, Integer> propertyTypes = null;
+        if (node.getPrimaryNodeType().isNodeType(NodeType.NT_FROZEN_NODE)) {
+            propertyTypes = new HashMap<>();
+            for (PropertyDefinition definition : node.getSession().getWorkspace().getNodeTypeManager().getNodeType(node.getProperty("jcr:frozenPrimaryType").getString()).getPropertyDefinitions()) {
+                propertyTypes.put(definition.getName(), definition.getRequiredType());
+            }
+        }
         for (PropertyIterator propertyIterator = node.getProperties(); propertyIterator.hasNext(); ) {
             Property property = propertyIterator.nextProperty();
-            if (property.getType() == PropertyType.BINARY) {
+            if (property.getType() == PropertyType.BINARY && (propertyTypes == null || propertyTypes.get(property.getName()) == PropertyType.BINARY)) {
                 result.put(property.getValue(), property.getPath());
             }
         }

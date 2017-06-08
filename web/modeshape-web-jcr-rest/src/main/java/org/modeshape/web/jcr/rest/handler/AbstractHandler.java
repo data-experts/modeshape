@@ -171,6 +171,9 @@ public abstract class AbstractHandler {
             switch (value.getType()) {
                 case PropertyType.BINARY: {
                     assert baseUrl != null;
+                    if (absPropertyPath == null) { //ehemals String
+                        return value.getString();
+                    }
                     return restValueForBinary(absPropertyPath, baseUrl);
                 }
                 case PropertyType.REFERENCE:

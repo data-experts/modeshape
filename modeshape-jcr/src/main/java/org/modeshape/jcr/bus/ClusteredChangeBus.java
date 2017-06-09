@@ -31,7 +31,7 @@ import org.modeshape.jcr.clustering.MessageConsumer;
  * cluster, and JGroups will do this for us as long as we push all local changes into the channel and receive all local/remote
  * changes from the channel.
  * </p>
- * 
+ *
  * @author Horia Chiorean
  */
 @ThreadSafe
@@ -51,12 +51,11 @@ public final class ClusteredChangeBus extends MessageConsumer<ChangeSet> impleme
 
     /**
      * Creates a new clustered repository bus
-     * 
+     *
      * @param delegate the local bus to which changes will be delegated
      * @param clusteringService the object which will handle sending/receiving information in the cluster.
      */
-    public ClusteredChangeBus( ChangeBus delegate,
-                               ClusteringService clusteringService ) {
+    public ClusteredChangeBus(ChangeBus delegate, ClusteringService clusteringService) {
         super(ChangeSet.class);
 
         CheckArg.isNotNull(delegate, "delegate");
@@ -66,7 +65,7 @@ public final class ClusteredChangeBus extends MessageConsumer<ChangeSet> impleme
     }
 
     @Override
-    public void consume( ChangeSet changes ) {
+    public void consume(ChangeSet changes) {
         if (hasObservers()) {
             delegate.notify(changes);
             logReceivedOperation(changes);
@@ -98,16 +97,14 @@ public final class ClusteredChangeBus extends MessageConsumer<ChangeSet> impleme
     }
 
     @Override
-    public void notify( ChangeSet changeSet ) {
+    public void notify(ChangeSet changeSet) {
         if (changeSet == null) {
             return; // do nothing
         }
-        if (!clusteringService.multipleMembersInCluster()) {
-            // We are in clustered mode, but there is only one participant in the cluster (us).
-            // So short-circuit the cluster and just notify the local observers ...
-            consume(changeSet);
-            return;
-        }
+
+        // lokalen Observer immer benachrichtigen, da wir von JGroups lokal keine Nachrichten mehr bekommen
+        // So short-circuit the cluster and just notify the local observers ...
+        consume(changeSet);
 
         // There are multiple participants in the cluster, so send all changes out to JGroups,
         // letting JGroups do the ordering of messages...
@@ -116,43 +113,31 @@ public final class ClusteredChangeBus extends MessageConsumer<ChangeSet> impleme
         clusteringService.sendMessage(changeSet);
     }
 
-    protected final void logSendOperation( ChangeSet changeSet ) {
+    protected final void logSendOperation(ChangeSet changeSet) {
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Sending to cluster '{0}' {1} changes on workspace {2} made by {3} from process '{4}' at {5}",
-                         clusteringService.toString(),
-                         changeSet.size(),
-                         changeSet.getWorkspaceName(),
-                         changeSet.getUserData(),
-                         changeSet.getProcessKey(),
-                         changeSet.getTimestamp());
+            LOGGER.trace("Sending to cluster '{0}' {1} changes on workspace {2} made by {3} from process '{4}' at {5}", clusteringService.toString(), changeSet.size(), changeSet.getWorkspaceName(), changeSet.getUserData(), changeSet.getProcessKey(), changeSet.getTimestamp());
         }
     }
 
-    protected final void logReceivedOperation( ChangeSet changeSet ) {
+    protected final void logReceivedOperation(ChangeSet changeSet) {
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Received from cluster '{0}' {1} changes on workspace {2} made by {3} from process '{4}' at {5}",
-                         clusteringService.toString(),
-                         changeSet.size(),
-                         changeSet.getWorkspaceName(),
-                         changeSet.getUserId(),
-                         changeSet.getProcessKey(),
-                         changeSet.getTimestamp());
+            LOGGER.trace("Received from cluster '{0}' {1} changes on workspace {2} made by {3} from process '{4}' at {5}", clusteringService.toString(), changeSet.size(), changeSet.getWorkspaceName(), changeSet.getUserId(), changeSet.getProcessKey(), changeSet.getTimestamp());
 
         }
     }
 
     @Override
-    public boolean register( ChangeSetListener listener ) {
+    public boolean register(ChangeSetListener listener) {
         return delegate.register(listener);
     }
 
     @Override
-    public boolean registerInThread( ChangeSetListener listener ) {
+    public boolean registerInThread(ChangeSetListener listener) {
         return delegate.registerInThread(listener);
     }
 
     @Override
-    public boolean unregister( ChangeSetListener listener ) {
+    public boolean unregister(ChangeSetListener listener) {
         return delegate.unregister(listener);
     }
 }

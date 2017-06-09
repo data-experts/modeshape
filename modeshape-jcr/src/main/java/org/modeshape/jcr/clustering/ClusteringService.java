@@ -459,6 +459,8 @@ public abstract class ClusteringService {
                     lockingProtocol.init();
                     protocolStack.addProtocol(lockingProtocol);
                 }
+                //eigene Nachrichten niemals sich selbst zustellen
+                this.channel.setDiscardOwnMessages(true);
 
                 // Add a listener through which we'll know what's going on within the cluster ...
                 this.channel.addChannelListener(listener);
